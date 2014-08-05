@@ -80,20 +80,24 @@ var ExerciseStore = merge(EventEmitter.prototype, {
   }
 });
 
-// Register with the Dispatcher, emit a change when something changes
+// Register with the Dispatcher, emit a change if something
+// changed that we care about
 AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {
     case ExerciseConstants.EXERCISE_PASS:
       setPass(action.id);
+      ExerciseStore.emitChange();
       break;
     case ExerciseConstants.EXERCISE_FAIL:
       setFail(action.id);
+      ExerciseStore.emitChange();
+      break;
+    default:
+      // No change
       break;
   }
-
-  ExerciseStore.emitChange();
 
   return true;
 });

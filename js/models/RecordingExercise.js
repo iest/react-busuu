@@ -1,3 +1,8 @@
+/**
+ * RecordingExercise Class/model, extending off base Exercise class
+ * @type {[type]}
+ */
+
 var Exercise = require('./Exercise');
 
 var RecordingExercise = Exercise.extend({

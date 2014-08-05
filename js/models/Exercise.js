@@ -1,3 +1,13 @@
+/**
+ * Having inheritance of models is super powerful.
+ *
+ * A lot of our data layer is repeated everywhere, using inheritance
+ * is a way to solve that.
+ *
+ * In this example, I create an Exercise Class, which all other exercises
+ * can extend from.
+ */
+
 var Class = require('./Class');
 
 var Exercise = Class.extend({
