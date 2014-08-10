@@ -147,10 +147,10 @@ var RecordingExercise = Exercise.extend({
          var aCharacter = _this.transformCharacter(characters[answerer.character_id]);
 
         _this.availableCharacters[0] = qCharacter;
-        _this.availableCharacters[0].key = qCharacter.name;
+        _this.availableCharacters[0].key = 0;
 
         _this.availableCharacters[1] = aCharacter;
-        _this.availableCharacters[1].key = aCharacter.name;
+        _this.availableCharacters[1].key = 1;
       }
 
       obj = {

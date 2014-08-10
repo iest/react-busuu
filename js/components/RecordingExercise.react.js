@@ -4,6 +4,7 @@
 
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
+var cx = require('react/lib/cx');
 
 window.React = React; // This is so you can use the chrome react inspector
 
@@ -38,8 +39,9 @@ var characterButton = React.createClass({
   },
   render: function() {
     return (
-      <button className="btn btn--link" onClick={this._handleClick}>
-        <img src={this.props.character.image} className="mam img-round img-btn"/>
+      <button className="btn btn--link text-center" onClick={this._handleClick}>
+        <img src={this.props.character.image} className="db mam img-round img-btn"/>
+        {this.props.character.name}
       </button>);
   }
 });
@@ -63,7 +65,7 @@ var characterSelectionStage = React.createClass({
           <h3 className="text-muted">{this.props.exercise.intro}</h3>
 
           {exercise.availableCharacters.map(function(character){
-            return(<characterButton character={character} onSelect={_this._setSelectedCharacter}/>);
+            return(<characterButton key={character.name[LearningLang]} character={character} onSelect={_this._setSelectedCharacter}/>);
           })}
           <pre>{exercise.chosenCharacter}</pre>
         </div>
@@ -75,21 +77,47 @@ var characterSelectionStage = React.createClass({
 });
 
 var conversationGroup = React.createClass({
+  getInitialState: function() {
+    return {
+      isAutoplaying: false,
+      audioIsPlaying: false,
+      playingSrc: null
+    };
+  },
+  handleAudioStart: function(src) {
+    console.log(src);
+    this.setState({
+      audioIsPlaying: true,
+      playingSrc: src
+    })
+  },
+  handleAudioStop: function(src) {
+    this.setState({
+      audioIsPlaying: false,
+      playingSrc: null
+    })
+  },
   render: function () {
+    var _this = this;
+
     var question = this.props.script.question;
     var answer = this.props.script.answer;
 
     return(
       <div>
+        <h1>{this.state.audioIsPlaying}</h1>
         <h3 className="bold mbl">Listen and then record yourself speaking</h3>
         <div className="exercise--golf__section--left">
           <div className="exercise--golf__panel__avatar">
             <img className="img-profile-m img-round img-border" src={question.character.image}/>
           </div>
-          <div className="panel panel-tick-left panel-border--bs-grey panel-bg--white text-left text-medium">
+          <div className={cx({
+            "panel panel-tick-left panel-border--bs-grey panel-bg--white text-left text-medium": true,
+            active: _this.state.audioIsPlaying && _this.state.playingSrc === question[LearningLang].audio
+          })}>
             <div className="panel__inner exercise--golf__panel__inside">
               <div>
-                <AudioPlayer src={question[LearningLang].audio}/>
+                <AudioPlayer onPlay={this.handleAudioStart} onStop={this.handleAudioStop} src={question[LearningLang].audio}/>
               </div>
               <p>{question[LearningLang].value}</p>
             </div>
@@ -104,10 +132,13 @@ var conversationGroup = React.createClass({
           <div className="exercise--golf__panel__avatar">
             <img className="img-profile-m img-round img-border" src={answer.character.image}/>
           </div>
-          <div className="panel panel-tick-right panel-border--bs-grey panel-bg--white text-left text-medium">
+          <div className={cx({
+            "panel panel-tick-right panel-border--bs-grey panel-bg--white text-left text-medium": true,
+            active: _this.state.audioIsPlaying && _this.state.playingSrc === answer[LearningLang].audio
+          })}>
             <div className="panel__inner exercise--golf__panel__inside">
               <div>
-                <AudioPlayer src={answer[LearningLang].audio}/>
+                <AudioPlayer onPlay={this.handleAudioStart} onStop={this.handleAudioStop} src={answer[LearningLang].audio}/>
               </div>
               <p>{answer[LearningLang].value}</p>
             </div>
