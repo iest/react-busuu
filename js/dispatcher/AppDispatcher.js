@@ -1,12 +1,12 @@
 /**
  * AppDispatcher
  *
- * Singleton that operates as central hub for application updates
+ * Singleton that operates as central hub for all application updates
  */
 
-var Dispatcher = require('./Dispatcher');
-
 var merge = require('react/lib/merge');
+
+var Dispatcher = require('./Dispatcher');
 
 var AppDispatcher = merge(Dispatcher.prototype, {
 

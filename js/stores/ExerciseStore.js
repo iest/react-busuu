@@ -1,9 +1,9 @@
 /**
  * ExerciseStore
  *
- * Controls Exercises.
- * - Fetches a given exercise
- * - Transforms it into a useable mode
+ * Stores and manipulates Exercises.
+ * - Fetches a given exercise from the backend (dummy response for now)
+ * - Transforms it into a sensible model
  */
 
  var merge = require('react/lib/merge');
@@ -12,7 +12,7 @@
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
 var ExerciseConstants = require('../constants/Constants').Exercise;
-var RecordingExercise = require('../models/RecordingExercise');
+var RecordingExercise = require('../models/exercises/RecordingExercise');
 
 var CHANGE_EVENT = 'change';
 

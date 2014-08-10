@@ -1,5 +1,8 @@
 /**
  * Exercise Actions
+ *
+ * API used by views to manipulate exercises.
+ * Passes action event to Dispatcher.
  */
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');

@@ -2,38 +2,38 @@
  * Recording in react... how hard can it be?
  * -----------------------------
  * 
- *
+ * FLUX ARCHITECTURE:
+ * 
  * Views -> (actions) -> Dispatcher -> (registered callback) -> Stores -+
- *   ^                                                                            |
- *   |                                                                            V
+ *   ^                                                                  |
+ *   |                                                                  V
  *   +- ("change" event handlers) <- (store's emitted "change events") -+
  *
- * Need to split app out into:
- * - stores 
- * - dispatcher
- * - actions
- * - components
- * - contants
+ * VIEWS get given data to render, and manipulate it via actions.
  * 
- * Actions are discrete, semantic helper functions that facilitate passing data
- * into the dispatcher.
+ * ACTIONS are discrete, semantic helper functions that facilitate
+ * passing data into the dispatcher.
  *
- * All data flows through the dispatcher as a central hub. It calls callbacks
- * that stores have registered with it.
+ * All data flows through the DISPATCHER as a central hub. It calls
+ * callbacks that stores have registered with it.
  *
- * Store registers callback with Dispatcher. The callback would switch over the
- * payload it's given, performing different actions on the store.
+ * STORES have callbacks registered with Dispatcher. The callback would
+ * switch over the payload it's given, performing different actions on
+ * the store.
+ *
+ * Example - User changes the text for a ToDo item:
  * 
- * - [View]: Calls action (TodoActions.updateText())
- * - [Actions]: Calls Dispatcher, passes in payload (action type with change)
- * - [Dispatcher]: Dispatches payload to registered callbacks
+ * - VIEW: Calls action (TodoActions.updateText())
+ * - ACTION: Calls Dispatcher, passes in payload (action type with
+ * change)
+ * - DISPATCHER: Dispatches payload to all registered callbacks
  * 
  * ...seperately...
  *
- * - [Store] has callback registered. Switches over action in payload: makes 
- *   changes to actual data.
- * - [View] has change listener registered on store, calls callback when change
- *   occurs to data. View re-renders.
+ * - STORE has callback registered. Switches over action in payload:
+ * makes changes to actual data.
+ * - VIEW has change listener registered on store, calls callback when
+ * change occurs to data. View re-renders.
  * 
  * @jsx React.DOM
  */
@@ -42,7 +42,19 @@ var React = require('react');
 
 var RecordingExercise = require('./components/RecordingExercise.react');
 
+// In reality this would be returned by some other means
+var exerciseID = "exercise_recording_1_1_9";
+
 React.renderComponent(
-  <RecordingExercise exerciseID="exercise_recording_1_1_9"/>,
+  <RecordingExercise exerciseID={exerciseID}/>,
   document.getElementById('recording-exercise')
   );
+
+/**
+ * TODO:
+ *
+ * Define exercise STAGES:
+ * 1. Character selection
+ * 2. Conversation between the characters
+ * 3. Preview of convo between character & user
+ */

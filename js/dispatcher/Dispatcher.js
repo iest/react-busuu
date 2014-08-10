@@ -34,12 +34,15 @@ Dispatcher.prototype = merge(Dispatcher.prototype, {
     // First create array of promises for callbacks to reference.
     var resolves = [];
     var rejects = [];
+
+    // For each callback, reference the promise arrays
     _promises = _callbacks.map(function(_, i) {
       return new Promise(function(resolve, reject) {
         resolves[i] = resolve;
         rejects[i] = reject;
       });
     });
+
     // Dispatch to callbacks and resolve/reject promises.
     _callbacks.forEach(function(callback, i) {
       // Callback can return an obj, to resolve, or a promise, to chain.
@@ -56,7 +59,7 @@ Dispatcher.prototype = merge(Dispatcher.prototype, {
   /**
    * Allows a store to wait for the registered callbacks of other stores
    * to get invoked before its own does.
-   * This function is not used by this TodoMVC example application, but
+   * This function is not used by this example application, but
    * it is very useful in a larger, more complex application.
    *
    * Example usage where StoreB waits for StoreA:

@@ -5,7 +5,7 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
 
-window.React = React;
+window.React = React; // This is so you can use the chrome react inspector
 
 var ExerciseStore = require('../stores/ExerciseStore');
 var ExerciseActions = require('../actions/ExerciseActions');
