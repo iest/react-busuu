@@ -24,34 +24,57 @@ function getExerciseState(id) {
   }
 }
 
+// Stages
+var characterSelectionStage = React.createClass({
+  render: function() {
+    return(
+      <div className="pal">
+        <h3 className="bold">Choose your character:</h3>
+        <h3 className="text-muted">{this.props.exercise.intro}</h3>
+      </div>
+    );
+  }
+});
+
+var conversationStage = React.createClass({
+  render: function() {
+    return(<h1>conversationStage</h1>);
+  }
+});
+
+var previewStage = React.createClass({
+  render: function() {
+    return(<h1>previewStage</h1>);
+  }
+});
+
+// The full exercise
 var RecordingExercise = React.createClass({
 
   render: function() {
     var exercise = this.state.exercise;
+
+    var title = "Practice your pronunciation and get corrections from native speakers";
 
     if (exercise) {
       var passed = exercise.isPassed ? "Passed!!" : "";
       var failed = exercise.isFailed ? "Failed..." : "";
 
       return (
-        <div>
-          <h1>{exercise.intro}</h1>
-
-          <ol>
-            {exercise.script.map(function(item) {
-              return(
-                <li>
-                  <span>{item.character.name}</span>
-                  <img src={item.character.image} />
-                  <strong>{item.enc}</strong>
-                  <em>{item.fr}</em>
-                </li>
-              );
-            })}
-          </ol>
-
-          <button onClick={this._pass}>Pass!</button>
-          <button onClick={this._fail}>Fail!</button>
+        <div id="lu-content" className="panel bg-white mal">
+          <div className="header">
+            <div className="instruction"></div>
+          </div>
+          <div id="activity-frame">
+            <div className="exercise">
+              <div className="exercise__title">
+                <h3>{title}</h3>
+              </div>
+              <characterSelectionStage exercise={exercise}/>
+              <conversationStage exercise={exercise}/>
+              <previewStage exercise={exercise}/>
+            </div>
+          </div>
         </div>
         );
     } else {
