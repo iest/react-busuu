@@ -7,8 +7,15 @@ var ReactPropTypes = React.PropTypes;
 
 window.React = React; // This is so you can use the chrome react inspector
 
+// These two would be taken from the user object in reality
+var LearningLang = 'fr';
+var SpeakingLang = 'enc';
+
 var ExerciseStore = require('../stores/ExerciseStore');
 var ExerciseActions = require('../actions/ExerciseActions');
+
+var Recorder = require('./Recorder');
+var AudioPlayer = require('./AudioPlayer');
 
 function getExerciseState(id) {
   var exercise = ExerciseStore.get(id);
@@ -67,10 +74,69 @@ var characterSelectionStage = React.createClass({
   }
 });
 
+var conversationGroup = React.createClass({
+  render: function () {
+    var question = this.props.script.question;
+    var answer = this.props.script.answer;
+
+    return(
+      <div>
+        <h3 className="bold mbl">Listen and then record yourself speaking</h3>
+        <div className="exercise--golf__section--left">
+          <div className="exercise--golf__panel__avatar">
+            <img className="img-profile-m img-round img-border" src={question.character.image}/>
+          </div>
+          <div className="panel panel-tick-left panel-border--bs-grey panel-bg--white text-left text-medium">
+            <div className="panel__inner exercise--golf__panel__inside">
+              <div>
+                <AudioPlayer src={question[LearningLang].audio}/>
+              </div>
+              <p>{question[LearningLang].value}</p>
+            </div>
+            <div className="panel__footer">
+              <Recorder />
+              <strong>Record your own version</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="exercise--golf__section--right">
+          <div className="exercise--golf__panel__avatar">
+            <img className="img-profile-m img-round img-border" src={answer.character.image}/>
+          </div>
+          <div className="panel panel-tick-right panel-border--bs-grey panel-bg--white text-left text-medium">
+            <div className="panel__inner exercise--golf__panel__inside">
+              <div>
+                <AudioPlayer src={answer[LearningLang].audio}/>
+              </div>
+              <p>{answer[LearningLang].value}</p>
+            </div>
+            <div className="panel__footer">
+              <Recorder />
+              <strong>Record your own version</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+});
+
 var conversationStage = React.createClass({
+  getInitialState: function () {
+    return {
+      hasRecorded: false,
+      isRecording: false,
+      currentPlayingToken: null
+    }
+  },
   render: function() {
     if (this.props.isActive) {
-      return(<h1>conversationStage</h1>);
+
+      var activeScriptIndex = this.props.exercise.activeScript;
+      var activeScript = this.props.exercise.script[activeScriptIndex];
+
+      return(<conversationGroup script={activeScript}/>);
     } else {
       return null;
     }
@@ -116,6 +182,7 @@ var RecordingExercise = React.createClass({
               <conversationStage isActive={exercise.activeStage === exercise.STAGES.CONVERSATION} exercise={exercise}/>
 
               <previewStage isActive={exercise.activeStage === exercise.STAGES.PREVIEW} exercise={exercise}/>
+
             </div>
           </div>
         </div>

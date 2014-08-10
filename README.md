@@ -6,7 +6,6 @@
 
 **What this *is***: Some ideas to get some conversations going about how our application is currently architected, and how it could be vastly improved.
 
-
 ### Why this is cool:
 
 #### Everything is a commonJS module
@@ -49,3 +48,7 @@ TODO:
 - Transitions (abort/redirect/retry)
 - Dynamic segments & query params
 - 404s
+
+# Notes
+
+- None of the CSS files have been included in this repo, so you'll need to grab them from the main angular repo
