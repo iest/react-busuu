@@ -5,6 +5,8 @@
  * explicitely defined.
  */
 
+var keyMirror = require('react/lib/keyMirror');
+
 var Exercise = require('../Exercise');
 
 // These two would be taken from the user object in reality
@@ -14,14 +16,36 @@ var SpeakingLang = 'enc';
 var RecordingExercise = Exercise.extend({
 
   /**
+   * The available stages for a recording exercise
+   * @type {object}
+   */
+  STAGES: keyMirror({
+    CHARACTER_SELECTION: null,
+    CONVERSATION: null,
+    PREVIEW: null
+  }),
+
+  /**
+   * The current active stage for this exercise
+   * @type {object}
+   */
+  activeStage: null,
+
+  /**
    * The conversation scripts between the 2 characters
-   * @type {Object}
+   * @type {object}
    */
   script: {
     character: {},
     LearningLang: '',
     SpeakingLang: ''
   },
+
+  /**
+   * The available characters for this exercise
+   * @type {array}
+   */
+  availableCharacters: [],
 
   /**
    * Translate the given string ID
@@ -42,6 +66,7 @@ var RecordingExercise = Exercise.extend({
    */
   transformCharacter: function(character) {
     var _this = this;
+
     return {
       name: _this.translate(character.name, LearningLang),
       image: character.image
@@ -61,17 +86,26 @@ var RecordingExercise = Exercise.extend({
     this._super(opts);
 
     var scripts = opts.content.script;
+    this.script = scripts.map(function(item, index) {
 
-    this.script = scripts.map(function(item) {
-      var char = opts.content.characters[item.character_id];
+      var char = _this.transformCharacter(opts.content.characters[item.character_id]);
 
       var obj = {};
-      obj.character = _this.transformCharacter(char);
+      obj.character = char;
       obj[LearningLang] = _this.translate(item.line, LearningLang);
       obj[SpeakingLang] = _this.translate(item.line, SpeakingLang);
 
+      // Set the characters on the exercise
+      if (!_this.availableCharacters[index] && index < 2) {
+        _this.availableCharacters[index] = char;
+        _this.availableCharacters[index].key = char.name;
+      }
+
       return obj;
     });
+
+    // Start off on the first stage
+    this.activeStage = this.STAGES.CHARACTER_SELECTION;
   }
 });
 

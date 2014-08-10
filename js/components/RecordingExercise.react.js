@@ -26,25 +26,56 @@ function getExerciseState(id) {
 
 // Stages
 var characterSelectionStage = React.createClass({
+
+  _setSelected: function(ev) {
+    debugger;
+  },
+
   render: function() {
-    return(
-      <div className="pal">
-        <h3 className="bold">Choose your character:</h3>
-        <h3 className="text-muted">{this.props.exercise.intro}</h3>
-      </div>
-    );
+
+    var exercise = this.props.exercise;
+    var _this = this;
+
+    if (this.props.isActive) {
+      return(
+        <div className="pal">
+          <h3 className="bold">Choose your character:</h3>
+          <h3 className="text-muted">{this.props.exercise.intro}</h3>
+
+
+          {exercise.availableCharacters.map(function(character){
+            return(
+              <button className="btn btn--link" onClick={_this._setSelected}>
+                <img src={character.image} className="mam img-round img-btn"/>
+
+              </button>
+            );
+          })}
+        </div>
+      );
+    } else {
+      return null;
+    }
   }
 });
 
 var conversationStage = React.createClass({
   render: function() {
-    return(<h1>conversationStage</h1>);
+    if (this.props.isActive) {
+      return(<h1>conversationStage</h1>);
+    } else {
+      return null;
+    }
   }
 });
 
 var previewStage = React.createClass({
   render: function() {
-    return(<h1>previewStage</h1>);
+    if (this.props.isActive) {
+      return(<h1>previewStage</h1>);
+    } else {
+      return null;
+    }
   }
 });
 
@@ -54,11 +85,11 @@ var RecordingExercise = React.createClass({
   render: function() {
     var exercise = this.state.exercise;
 
-    var title = "Practice your pronunciation and get corrections from native speakers";
+    var titleString = "Practice your pronunciation and get corrections from native speakers";
 
     if (exercise) {
-      var passed = exercise.isPassed ? "Passed!!" : "";
-      var failed = exercise.isFailed ? "Failed..." : "";
+
+      var activeStage = this.state.exercise.activeStage;
 
       return (
         <div id="lu-content" className="panel bg-white mal">
@@ -67,12 +98,16 @@ var RecordingExercise = React.createClass({
           </div>
           <div id="activity-frame">
             <div className="exercise">
+
               <div className="exercise__title">
-                <h3>{title}</h3>
+                <h3>{titleString}</h3>
               </div>
-              <characterSelectionStage exercise={exercise}/>
-              <conversationStage exercise={exercise}/>
-              <previewStage exercise={exercise}/>
+
+              <characterSelectionStage isActive={exercise.activeStage === exercise.STAGES.CHARACTER_SELECTION} exercise={exercise}/>
+
+              <conversationStage isActive={exercise.activeStage === exercise.STAGES.CONVERSATION} exercise={exercise}/>
+
+              <previewStage isActive={exercise.activeStage === exercise.STAGES.PREVIEW} exercise={exercise}/>
             </div>
           </div>
         </div>
