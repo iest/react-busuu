@@ -19,6 +19,10 @@ var CHANGE_EVENT = 'change';
 var _exercises = {};
 
 // API methods
+function setCharacter(id, char) {
+  _exercises[id].chosenCharacter = char;
+  _exercises[id].nextStage();
+}
 function setPass(id) {
   _exercises[id].isFailed = false;
   _exercises[id].isPassed = true;
@@ -86,6 +90,10 @@ AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {
+    case ExerciseConstants.CHOSE_CHARACTER:
+      setCharacter(action.id, action.character);
+      ExerciseStore.emitChange();
+      break;
     case ExerciseConstants.EXERCISE_PASS:
       setPass(action.id);
       ExerciseStore.emitChange();

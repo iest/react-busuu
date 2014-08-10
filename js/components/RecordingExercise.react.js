@@ -24,11 +24,24 @@ function getExerciseState(id) {
   }
 }
 
+var characterButton = React.createClass({
+  _handleClick: function(event) {
+    var char = this.props.character;
+    this.props.onSelect(char);
+  },
+  render: function() {
+    return (
+      <button className="btn btn--link" onClick={this._handleClick}>
+        <img src={this.props.character.image} className="mam img-round img-btn"/>
+      </button>);
+  }
+});
+
 // Stages
 var characterSelectionStage = React.createClass({
 
-  _setSelected: function(ev) {
-    debugger;
+  _setSelectedCharacter: function(character) {
+    ExerciseActions.setCharacter(this.props.exercise.id, character);
   },
 
   render: function() {
@@ -42,15 +55,10 @@ var characterSelectionStage = React.createClass({
           <h3 className="bold">Choose your character:</h3>
           <h3 className="text-muted">{this.props.exercise.intro}</h3>
 
-
           {exercise.availableCharacters.map(function(character){
-            return(
-              <button className="btn btn--link" onClick={_this._setSelected}>
-                <img src={character.image} className="mam img-round img-btn"/>
-
-              </button>
-            );
+            return(<characterButton character={character} onSelect={_this._setSelectedCharacter}/>);
           })}
+          <pre>{exercise.chosenCharacter}</pre>
         </div>
       );
     } else {

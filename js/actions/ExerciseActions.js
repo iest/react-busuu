@@ -9,6 +9,13 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var ExerciseConstants = require('../constants/Constants').Exercise;
 
 module.exports = {
+  setCharacter: function(id, character) {
+    AppDispatcher.handleViewAction({
+      actionType: ExerciseConstants.CHOSE_CHARACTER,
+      id: id,
+      character: character
+    });
+  },
   pass: function(id) {
     AppDispatcher.handleViewAction({
       actionType: ExerciseConstants.EXERCISE_PASS,

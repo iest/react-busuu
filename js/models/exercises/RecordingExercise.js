@@ -19,17 +19,23 @@ var RecordingExercise = Exercise.extend({
    * The available stages for a recording exercise
    * @type {object}
    */
-  STAGES: keyMirror({
-    CHARACTER_SELECTION: null,
-    CONVERSATION: null,
-    PREVIEW: null
-  }),
+  STAGES: {
+    CHARACTER_SELECTION: 0,
+    CONVERSATION: 1,
+    PREVIEW: 2
+  },
 
   /**
    * The current active stage for this exercise
    * @type {object}
    */
   activeStage: null,
+
+  nextStage: function() {
+    var currentStage = this.activeStage;
+    
+
+  },
 
   /**
    * The conversation scripts between the 2 characters
@@ -46,6 +52,12 @@ var RecordingExercise = Exercise.extend({
    * @type {array}
    */
   availableCharacters: [],
+
+  /**
+   * The character the user chose;
+   * @type {object}
+   */
+  chosenCharacter: null,
 
   /**
    * Translate the given string ID
