@@ -4,6 +4,7 @@
 
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
+var Promise = require('es6-promise').Promise;
 
 var AudioPlayer = React.createClass({
 
@@ -13,6 +14,8 @@ var AudioPlayer = React.createClass({
     onPause: ReactPropTypes.func,
     onStop: ReactPropTypes.func
   },
+
+  playPromise: {},
 
   getInitialState: function () {
     return {
@@ -29,9 +32,20 @@ var AudioPlayer = React.createClass({
     }
   },
   play: function() {
+
+    if (this.playPromise.reject) {
+      this.playPromise.reject();
+    }
+
     this.setState({isPlaying: true});
     this.props.onPlay ? this.props.onPlay(this.props.src) : null;
     this.refs.audioObject.getDOMNode().play();
+    var _this = this;
+
+    return new Promise(function(resolve, reject) {
+      _this.playPromise.resolve = resolve;
+      _this.playPromise.reject = reject;
+    });
   },
   pause: function() {
     this.setState({isPlaying: false});
@@ -39,6 +53,9 @@ var AudioPlayer = React.createClass({
   },
   stop: function() {
     this.pause();
+    if (this.playPromise) {
+      this.playPromise.resolve();
+    }
     this.props.onStop ? this.props.onStop(this.props.src) : null;
     this.refs.audioObject.getDOMNode().currentTime = 0;
   },

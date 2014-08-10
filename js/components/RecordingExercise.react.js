@@ -5,6 +5,7 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var cx = require('react/lib/cx');
+var Promise = require('es6-promise').Promise;
 
 window.React = React; // This is so you can use the chrome react inspector
 
@@ -76,16 +77,33 @@ var characterSelectionStage = React.createClass({
   }
 });
 
+var panelFooter = React.createClass({
+  render: function() {
+    if (this.props.isActive) {
+      return(
+        <div className="panel__footer">
+          <Recorder />
+          <strong>Record your own version</strong>
+        </div>
+      );
+    } else {
+      return null;
+    }
+  }
+});
+
 var conversationGroup = React.createClass({
   getInitialState: function() {
     return {
-      isAutoplaying: false,
+      isAutoPlaying: true,
       audioIsPlaying: false,
       playingSrc: null
     };
   },
   handleAudioStart: function(src) {
-    console.log(src);
+    if (this.state.audioIsPlaying && this.autoPlayPromise.reject) {
+      this.autoPlayPromise.reject();
+    }
     this.setState({
       audioIsPlaying: true,
       playingSrc: src
@@ -95,13 +113,46 @@ var conversationGroup = React.createClass({
     this.setState({
       audioIsPlaying: false,
       playingSrc: null
+    });
+
+    if (this.autoPlayPromise.reject) {
+      this.autoPlayPromise.reject();
+    }
+  },
+  autoPlayPromise: {},
+  cancelAutoPlay: function() {
+    this.setState({
+      isAutoPlaying: false
+    });
+  },
+  autoPlay: function() {
+    var _this = this;
+
+    this.setState({
+      isAutoPlaying: true
     })
+    this.autoPlayPromise = new Promise(function(resolve, reject) {
+
+      _this.autoPlayPromise.resolve = resolve;
+      _this.autoPlayPromise.reject = reject;
+
+      _this.refs.questionAudio.play()
+        .then(function() {
+          return _this.refs.answerAudio.play();
+        })
+        .then(function() {
+          _this.cancelAutoPlay();
+          resolve();
+        });
+    });
   },
   render: function () {
     var _this = this;
 
+    var exercise = this.props.exercise;
     var question = this.props.script.question;
     var answer = this.props.script.answer;
+    var isAutoPlaying = this.state.isAutoPlaying;
 
     return(
       <div>
@@ -117,14 +168,11 @@ var conversationGroup = React.createClass({
           })}>
             <div className="panel__inner exercise--golf__panel__inside">
               <div>
-                <AudioPlayer onPlay={this.handleAudioStart} onStop={this.handleAudioStop} src={question[LearningLang].audio}/>
+                <AudioPlayer ref="questionAudio" onPlay={this.handleAudioStart} onStop={this.handleAudioStop} src={question[LearningLang].audio}/>
               </div>
               <p>{question[LearningLang].value}</p>
             </div>
-            <div className="panel__footer">
-              <Recorder />
-              <strong>Record your own version</strong>
-            </div>
+            <panelFooter isActive={exercise.chosenCharacter.name === question.character.name && !isAutoPlaying}/>
           </div>
         </div>
 
@@ -138,18 +186,21 @@ var conversationGroup = React.createClass({
           })}>
             <div className="panel__inner exercise--golf__panel__inside">
               <div>
-                <AudioPlayer onPlay={this.handleAudioStart} onStop={this.handleAudioStop} src={answer[LearningLang].audio}/>
+                <AudioPlayer ref="answerAudio" onPlay={this.handleAudioStart} onStop={this.handleAudioStop} src={answer[LearningLang].audio}/>
               </div>
               <p>{answer[LearningLang].value}</p>
             </div>
-            <div className="panel__footer">
-              <Recorder />
-              <strong>Record your own version</strong>
-            </div>
+            <panelFooter isActive={exercise.chosenCharacter.name === answer.character.name && !isAutoPlaying}/>
           </div>
         </div>
       </div>
     );
+  },
+  componentDidMount: function() {
+    var _this = this;
+    setTimeout(function() {
+      _this.autoPlay();
+    }, 500);
   }
 });
 
@@ -164,10 +215,11 @@ var conversationStage = React.createClass({
   render: function() {
     if (this.props.isActive) {
 
+      var exercise = this.props.exercise;
       var activeScriptIndex = this.props.exercise.activeScript;
       var activeScript = this.props.exercise.script[activeScriptIndex];
 
-      return(<conversationGroup script={activeScript}/>);
+      return(<conversationGroup script={activeScript} exercise={exercise} />);
     } else {
       return null;
     }
