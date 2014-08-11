@@ -45,16 +45,9 @@ var RecordingExercise = require('./components/RecordingExercise.react');
 // In reality this would be returned by some other means
 var exerciseID = "exercise_recording_1_1_9";
 
+window.React = React; // This is so you can use the chrome react inspector
+
 React.renderComponent(
   <RecordingExercise exerciseID={exerciseID}/>,
   document.getElementById('recording-exercise')
   );
-
-/**
- * TODO:
- *
- * Define exercise STAGES:
- * 1. Character selection
- * 2. Conversation between the characters
- * 3. Preview of convo between character & user
- */

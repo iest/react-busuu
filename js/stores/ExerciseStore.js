@@ -4,6 +4,7 @@
  * Stores and manipulates Exercises.
  * - Fetches a given exercise from the backend (dummy response for now)
  * - Transforms it into a sensible model
+ * - Stores it
  */
 
  var merge = require('react/lib/merge');
@@ -11,14 +12,28 @@
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
-var ExerciseConstants = require('../constants/Constants').Exercise;
+var Constants = require('../constants/Constants');
+var ExerciseConstants = Constants.Exericse;
+var ExerciseTypes = Constants.ExerciseTypes;
 var RecordingExercise = require('../models/exercises/RecordingExercise');
 
 var CHANGE_EVENT = 'change';
 
+
 var _exercises = {};
 
 // API methods
+
+function create(exe) {
+  switch (exe.type) {
+    case ExerciseTypes.RECORDING:
+      return new RecordingExercise(exe);
+    case ExerciseTypes.VOCABULARY :
+      return {};
+    default:
+      throw new Error("No type matching " + exe.type);
+  }
+}
 function setCharacter(id, char) {
   _exercises[id].chosenCharacter = char;
   _exercises[id].nextStage();
@@ -77,7 +92,7 @@ var ExerciseStore = merge(EventEmitter.prototype, {
         .get('/responses/' + id + '.js')
         .end(function(resp) {
           resp = JSON.parse(resp.text);
-          _exercises[id] = new RecordingExercise(resp);
+          _exercises[id] = create(resp);
           _this.emitChange();
         });
     }

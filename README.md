@@ -2,6 +2,12 @@
 
 ...still here?
 
+## TODO
+
+- [ ] Split ExerciseStore into `Store` and `ExerciseStore`, the latter extending off the former. Could use `merge` for this?
+- [ ] Move more `RecordingExercise` logic into `ExerciseStore`
+- [ ] Change all `setState` calls inside `RecordingExercise.react` to be handled by the Dispatcher and registered callbacks (the flux way)
+
 **What this *is not***: A suggestion to re-write the entire app in react.
 
 **What this *is***: Some ideas to get some conversations going about how our application is currently architected, and how it could be vastly improved.
@@ -10,7 +16,7 @@
 
 #### Everything is a commonJS module
 
-The node standard. Forces better structuring, and there are no global namespaces. You want lo-dash? `require` it!
+The node standard. Forces better structuring, and there are no global namespaces. You want lo-dash? `require` it! As a bonus, the build tool (browserify) will only bundle up modules that have been `require`d by others.
 
 #### Proper model definitions with inheritance
 
@@ -52,3 +58,4 @@ TODO:
 # Notes
 
 - None of the CSS files have been included in this repo, so you'll need to grab them from the main angular repo
+- Same with the fonts

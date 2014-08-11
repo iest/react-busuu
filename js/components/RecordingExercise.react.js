@@ -7,8 +7,6 @@ var ReactPropTypes = React.PropTypes;
 var cx = require('react/lib/cx');
 var Promise = require('es6-promise').Promise;
 
-window.React = React; // This is so you can use the chrome react inspector
-
 // These two would be taken from the user object in reality
 var LearningLang = 'fr';
 var SpeakingLang = 'enc';
@@ -107,7 +105,7 @@ var conversationGroup = React.createClass({
     this.setState({
       audioIsPlaying: true,
       playingSrc: src
-    })
+    });
   },
   handleAudioStop: function(src) {
     this.setState({
@@ -130,7 +128,7 @@ var conversationGroup = React.createClass({
 
     this.setState({
       isAutoPlaying: true
-    })
+    });
     this.autoPlayPromise = new Promise(function(resolve, reject) {
 
       _this.autoPlayPromise.resolve = resolve;
@@ -210,7 +208,7 @@ var conversationStage = React.createClass({
       hasRecorded: false,
       isRecording: false,
       currentPlayingToken: null
-    }
+    };
   },
   render: function() {
     if (this.props.isActive) {
