@@ -30,13 +30,18 @@ function _play(token){
   if (!_tokens[token]) {
     _create(token);
   }
+
+  // Stop all other tokens first
+  for (var tok in _tokens) {
+    _tokens[tok].isPlaying = AudioConstants.AUDIO_STOPPED;
+  }
+
+  // Now play ours
   _tokens[token].isPlaying = AudioConstants.AUDIO_PLAYING;
 }
 
 function _stop(token) {
-  _tokens[token] = {
-    isPlaying: AudioConstants.AUDIO_STOPPED
-  };
+  _tokens[token].isPlaying = AudioConstants.AUDIO_STOPPED;
 }
 
 var AudioStore = merge(Store, {
