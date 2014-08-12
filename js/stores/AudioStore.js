@@ -15,7 +15,8 @@ var _tokens = {};
 function _create(token) {
   _tokens[token] = {
     isPlaying: AudioConstants.AUDIO_STOPPED,
-    duration: 0
+    duration: 0,
+    isDisabled: false
   };
 }
 
@@ -34,14 +35,23 @@ function _play(token){
   // Stop all other tokens first
   for (var tok in _tokens) {
     _tokens[tok].isPlaying = AudioConstants.AUDIO_STOPPED;
+
+    // Disable all other players too
+    _tokens[tok].isDisabled = true;
   }
 
   // Now play ours
+  _tokens[token].isDisabled = false;
   _tokens[token].isPlaying = AudioConstants.AUDIO_PLAYING;
 }
 
 function _stop(token) {
   _tokens[token].isPlaying = AudioConstants.AUDIO_STOPPED;
+
+  for (var tok in _tokens) {
+    // re-enable all other players too
+    _tokens[tok].isDisabled = false;
+  }
 }
 
 var AudioStore = merge(Store, {

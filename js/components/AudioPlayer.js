@@ -36,7 +36,8 @@ var AudioPlayer = React.createClass({
   getInitialState: function () {
     return {
       isPlaying: AudioConstants.AUDIO_STOPPED,
-      duration: 0
+      duration: 0,
+      isDisabled: false
     };
   },
   togglePlay: function () {
@@ -62,7 +63,7 @@ var AudioPlayer = React.createClass({
     var isPlaying = this.state.isPlaying === AudioConstants.AUDIO_PLAYING;
     return (
       <div>
-        <button className="btn btn--icon btn--secondary mrm" onClick={this.togglePlay}>
+        <button className="btn btn--icon btn--secondary mrm" onClick={this.togglePlay} disabled={this.state.isDisabled}>
           {isPlaying ? "◼︎":"▶︎"}
         </button>
         <audio ref="audioObject" preload="true" src={this.props.src}></audio>
