@@ -39,15 +39,25 @@
  */
 
 var React = require('react');
+window.React = React; // This is so you can use the chrome react inspector
 
 var RecordingExercise = require('./components/RecordingExercise.react');
+
 
 // In reality this would be returned by some other means
 var exerciseID = "exercise_recording_1_1_9";
 
-window.React = React; // This is so you can use the chrome react inspector
+var App = React.createClass({
+  render: function() {
+    return(
+      <div>
+        <RecordingExercise exerciseID={exerciseID}/>
+      </div>
+    );
+  }
+});
 
 React.renderComponent(
-  <RecordingExercise exerciseID={exerciseID}/>,
-  document.getElementById('recording-exercise')
+  <App/>,
+  document.getElementById('app')
   );

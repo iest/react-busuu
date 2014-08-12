@@ -11,13 +11,12 @@
  var request = require('superagent');
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
-var EventEmitter = require('events').EventEmitter;
+var Store = require('./Store');
+
 var Constants = require('../constants/Constants');
-var ExerciseConstants = Constants.Exericse;
+var ExerciseConstants = Constants.Exercise;
 var ExerciseTypes = Constants.ExerciseTypes;
 var RecordingExercise = require('../models/exercises/RecordingExercise');
-
-var CHANGE_EVENT = 'change';
 
 
 var _exercises = {};
@@ -26,10 +25,13 @@ var _exercises = {};
 
 function create(exe) {
   switch (exe.type) {
+    
     case ExerciseTypes.RECORDING:
       return new RecordingExercise(exe);
+
     case ExerciseTypes.VOCABULARY :
-      return {};
+      return {}; // Would return other types here too
+
     default:
       throw new Error("No type matching " + exe.type);
   }
@@ -48,25 +50,7 @@ function setFail(id) {
   _exercises[id].isFailed = true;
 }
 
-var ExerciseStore = merge(EventEmitter.prototype, {
-
-  emitChange: function() {
-    this.emit(CHANGE_EVENT);
-  },
-
-  /**
-   * @param {function} callback
-   */
-  addChangeListener: function(callback) {
-    this.on(CHANGE_EVENT, callback);
-  },
-
-  /**
-   * @param {function} callback
-   */
-  removeChangeListener: function(callback) {
-    this.removeListener(CHANGE_EVENT, callback);
-  },
+var ExerciseStore = merge(Store, {
 
   /**
    * Get all loaded exercises

@@ -9,10 +9,10 @@ var Recorder = React.createClass({
     return (
       <span>
         <button className="btn btn--icon btn--secondary mrm">
-          R
+          ◉
         </button>
         <button className="btn btn--icon btn--secondary mrm">
-          P
+          ▶︎
         </button>
       </span>
     );

@@ -5,6 +5,7 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var cx = require('react/lib/cx');
+var AnimGroup = require('react/lib/ReactCSSTransitionGroup');
 var Promise = require('es6-promise').Promise;
 
 // These two would be taken from the user object in reality
@@ -66,7 +67,6 @@ var characterSelectionStage = React.createClass({
           {exercise.availableCharacters.map(function(character){
             return(<characterButton key={character.name[LearningLang]} character={character} onSelect={_this._setSelectedCharacter}/>);
           })}
-          <pre>{exercise.chosenCharacter}</pre>
         </div>
       );
     } else {
@@ -79,7 +79,7 @@ var panelFooter = React.createClass({
   render: function() {
     if (this.props.isActive) {
       return(
-        <div className="panel__footer">
+        <div key={this.props.isActive} className="panel__footer">
           <Recorder />
           <strong>Record your own version</strong>
         </div>

@@ -10,18 +10,13 @@ var AudioPlayer = React.createClass({
 
   propTypes: {
     src: ReactPropTypes.string.isRequired,
-    onPlay: ReactPropTypes.func,
-    onPause: ReactPropTypes.func,
-    onStop: ReactPropTypes.func
   },
-
-  playPromise: {},
 
   getInitialState: function () {
     return {
       isPlaying: false,
       duration: 0
-    }
+    };
   },
 
   togglePlay: function () {
@@ -33,12 +28,10 @@ var AudioPlayer = React.createClass({
   },
   play: function() {
 
-    if (this.playPromise.reject) {
-      this.playPromise.reject();
-    }
-
     this.setState({isPlaying: true});
-    this.props.onPlay ? this.props.onPlay(this.props.src) : null;
+    if (this.props.onPlay) {
+      this.props.onPlay(this.props.src);
+    }
     this.refs.audioObject.getDOMNode().play();
     var _this = this;
 
@@ -56,7 +49,9 @@ var AudioPlayer = React.createClass({
     if (this.playPromise) {
       this.playPromise.resolve();
     }
-    this.props.onStop ? this.props.onStop(this.props.src) : null;
+    if (this.props.onStop) {
+      this.props.onStop(this.props.src);
+    }
     this.refs.audioObject.getDOMNode().currentTime = 0;
   },
 
@@ -66,11 +61,10 @@ var AudioPlayer = React.createClass({
   },
 
   render: function() {
-    var cx = require('react/lib/cx');
     return (
       <div>
         <button className="btn btn--icon btn--secondary mrm" onClick={this.togglePlay}>
-          {this.state.isPlaying ? "Stop":"Play"}
+          {this.state.isPlaying ? "◼︎":"▶︎"}
         </button>
         <audio ref="audioObject" src={this.props.src}></audio>
       </div>
@@ -81,11 +75,26 @@ var AudioPlayer = React.createClass({
     var audioElement = this.refs.audioObject.getDOMNode();
     audioElement.addEventListener('ended', this.stop);
     audioElement.addEventListener('loadeddata', this.handleLoad);
+    
+    ExerciseStore.addChangeListener(this._onChange);
   },
   componentWillUnmount: function () {
+
     var audioElement = this.refs.audioObject.getDOMNode();
     audioElement.removeEventListener('ended', this.stop);
     audioElement.removeEventListener('loadeddata', this.handleLoad);
+
+    ExerciseStore.removeChangeListener(this._onChange);
+  },
+  _onChange: function() {
+    this.setState(getExerciseState(this.props.exerciseID));
+  },
+
+  _pass: function() {
+   ExerciseActions.pass(this.props.exerciseID);
+  },
+  _fail: function() {
+    ExerciseActions.fail(this.props.exerciseID);
   }
 });
 
