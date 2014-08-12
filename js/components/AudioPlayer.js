@@ -11,7 +11,8 @@ var AudioActions = require('../actions/AudioActions');
 var AudioConstants = require('../constants/Constants').Audio;
 
 function getStateFromStore(token) {
-  return AudioStore.get(token);
+  var audio = AudioStore.get(token);
+  return audio;
 }
 
 var AudioPlayer = React.createClass({
@@ -86,11 +87,19 @@ var AudioPlayer = React.createClass({
     AudioStore.removeChangeListener(this._onChange);
   },
   _onChange: function() {
-    this.setState(getStateFromStore(this.props.src));
-    if (this.state.isPlaying === AudioConstants.AUDIO_PLAYING) {
-      this._play();
-    } else if (this.state.isPlaying === AudioConstants.AUDIO_STOPPED) {
-      this._stop();
+
+    var state = getStateFromStore(this.props.src);
+
+    // Only do stuff if we have state for our token
+    if (state) {
+
+      this.setState(state, function() {
+        if (state.isPlaying === AudioConstants.AUDIO_PLAYING) {
+          this._play();
+        } else if (state.isPlaying === AudioConstants.AUDIO_STOPPED) {
+          this._stop();
+        }
+      });
     }
   }
 });

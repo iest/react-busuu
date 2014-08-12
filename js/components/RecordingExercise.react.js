@@ -177,9 +177,9 @@ var conversationGroup = React.createClass({
   },
   componentDidMount: function() {
     var _this = this;
-    setTimeout(function() {
-      _this.autoPlay();
-    }, 500);
+    // setTimeout(function() {
+    //   _this.autoPlay();
+    // }, 500);
   }
 });
 
