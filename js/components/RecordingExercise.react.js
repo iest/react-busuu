@@ -98,25 +98,6 @@ var conversationGroup = React.createClass({
       playingSrc: null
     };
   },
-  handleAudioStart: function(src) {
-    if (this.state.audioIsPlaying && this.autoPlayPromise.reject) {
-      this.autoPlayPromise.reject();
-    }
-    this.setState({
-      audioIsPlaying: true,
-      playingSrc: src
-    });
-  },
-  handleAudioStop: function(src) {
-    this.setState({
-      audioIsPlaying: false,
-      playingSrc: null
-    });
-
-    if (this.autoPlayPromise.reject) {
-      this.autoPlayPromise.reject();
-    }
-  },
   autoPlayPromise: {},
   cancelAutoPlay: function() {
     this.setState({
@@ -166,7 +147,7 @@ var conversationGroup = React.createClass({
           })}>
             <div className="panel__inner exercise--golf__panel__inside">
               <div>
-                <AudioPlayer ref="questionAudio" onPlay={this.handleAudioStart} onStop={this.handleAudioStop} src={question[LearningLang].audio}/>
+                <AudioPlayer ref="questionAudio" src={question[LearningLang].audio}/>
               </div>
               <p>{question[LearningLang].value}</p>
             </div>

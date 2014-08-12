@@ -4,11 +4,11 @@
  * Singleton that operates as central hub for all application updates
  */
 
-var merge = require('react/lib/merge');
+var copyProperties = require('react/lib/copyProperties');
 
 var Dispatcher = require('./Dispatcher');
 
-var AppDispatcher = merge(Dispatcher.prototype, {
+var AppDispatcher = copyProperties(new Dispatcher(), {
 
   /**
    * A bridge function between the views and the dispatcher, marking the action

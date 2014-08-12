@@ -6,67 +6,65 @@ var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var Promise = require('es6-promise').Promise;
 
-var AudioPlayer = React.createClass({
+var AudioStore = require('../stores/AudioStore');
+var AudioActions = require('../actions/AudioActions');
+var AudioConstants = require('../constants/Constants').Audio;
 
+function getStateFromStore(token) {
+  return AudioStore.get(token);
+}
+
+var AudioPlayer = React.createClass({
   propTypes: {
     src: ReactPropTypes.string.isRequired,
   },
 
+  _play: function() {
+    this.refs.audioObject.getDOMNode().play();
+  },
+  _pause: function() {
+    this.refs.audioObject.getDOMNode().pause();
+  },
+  _stop: function() {
+    this.refs.audioObject.getDOMNode().pause();
+    if (this.refs.audioObject.getDOMNode().currentTime) {
+      this.refs.audioObject.getDOMNode().currentTime = 0;
+    }
+  },
+
   getInitialState: function () {
     return {
-      isPlaying: false,
+      isPlaying: AudioConstants.AUDIO_STOPPED,
       duration: 0
     };
   },
-
   togglePlay: function () {
-    if (this.state.isPlaying) {
+    if (this.state.isPlaying === AudioConstants.AUDIO_PLAYING) {
       this.stop();
     } else {
       this.play();
     }
   },
   play: function() {
-
-    this.setState({isPlaying: true});
-    if (this.props.onPlay) {
-      this.props.onPlay(this.props.src);
-    }
-    this.refs.audioObject.getDOMNode().play();
-    var _this = this;
-
-    return new Promise(function(resolve, reject) {
-      _this.playPromise.resolve = resolve;
-      _this.playPromise.reject = reject;
-    });
-  },
-  pause: function() {
-    this.setState({isPlaying: false});
-    this.refs.audioObject.getDOMNode().pause();
+    AudioActions.play(this.props.src);
   },
   stop: function() {
-    this.pause();
-    if (this.playPromise) {
-      this.playPromise.resolve();
-    }
-    if (this.props.onStop) {
-      this.props.onStop(this.props.src);
-    }
-    this.refs.audioObject.getDOMNode().currentTime = 0;
+    AudioActions.stop(this.props.src);
   },
 
   handleLoad: function() {
     var duration = this.refs.audioObject.getDOMNode().duration;
-    this.setState({duration: duration});
+    AudioActions.setDuration(this.props.src, duration);
   },
 
   render: function() {
+    var isPlaying = this.state.isPlaying === AudioConstants.AUDIO_PLAYING;
     return (
       <div>
         <button className="btn btn--icon btn--secondary mrm" onClick={this.togglePlay}>
-          {this.state.isPlaying ? "◼︎":"▶︎"}
+          {isPlaying ? "◼︎":"▶︎"}
         </button>
-        <audio ref="audioObject" src={this.props.src}></audio>
+        <audio ref="audioObject" preload="true" src={this.props.src}></audio>
       </div>
     );
   },
@@ -76,7 +74,7 @@ var AudioPlayer = React.createClass({
     audioElement.addEventListener('ended', this.stop);
     audioElement.addEventListener('loadeddata', this.handleLoad);
     
-    ExerciseStore.addChangeListener(this._onChange);
+    AudioStore.addChangeListener(this._onChange);
   },
   componentWillUnmount: function () {
 
@@ -84,17 +82,16 @@ var AudioPlayer = React.createClass({
     audioElement.removeEventListener('ended', this.stop);
     audioElement.removeEventListener('loadeddata', this.handleLoad);
 
-    ExerciseStore.removeChangeListener(this._onChange);
+    AudioActions.destroy(this.props.src);
+    AudioStore.removeChangeListener(this._onChange);
   },
   _onChange: function() {
-    this.setState(getExerciseState(this.props.exerciseID));
-  },
-
-  _pass: function() {
-   ExerciseActions.pass(this.props.exerciseID);
-  },
-  _fail: function() {
-    ExerciseActions.fail(this.props.exerciseID);
+    this.setState(getStateFromStore(this.props.src));
+    if (this.state.isPlaying === AudioConstants.AUDIO_PLAYING) {
+      this._play();
+    } else if (this.state.isPlaying === AudioConstants.AUDIO_STOPPED) {
+      this._stop();
+    }
   }
 });
 

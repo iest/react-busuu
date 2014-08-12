@@ -9,11 +9,8 @@
 - [ ] Add WebAPI util to handle fetching of exercise (init store on recieving raw data from backend)
 - [ ] Create Exercise actions to handle everything that happens in an exercise
 - [ ] Change all `setState` calls inside `RecordingExercise.react` to be handled by the Dispatcher and registered callbacks (flux)
-
-### Why this is cool:
-
-TODO:
 - [ ] write up why this is cool
+
 
 # Notes
 
