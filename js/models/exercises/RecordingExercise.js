@@ -5,8 +5,6 @@
  * explicitely defined.
  */
 
-var keyMirror = require('react/lib/keyMirror');
-
 var Exercise = require('../Exercise');
 
 // These two would be taken from the user object in reality
@@ -16,23 +14,15 @@ var SpeakingLang = 'enc';
 var RecordingExercise = Exercise.extend({
 
   /**
-   * The available stages for a recording exercise
+   * The available stages for a recording exercise.
+   * These are numbered not key-mirrored for a reason: we need to be able to
+   * easily move back and forth between stages.
    * @type {object}
    */
   STAGES: {
     CHARACTER_SELECTION: 0,
     CONVERSATION: 1,
     PREVIEW: 2
-  },
-
-  /**
-   * The current active stage for this exercise
-   * @type {object}
-   */
-  activeStage: null,
-
-  nextStage: function() {
-    this.activeStage++;
   },
 
   /**
@@ -90,17 +80,6 @@ var RecordingExercise = Exercise.extend({
   chosenCharacter: null,
 
   /**
-   * Translate the given string ID
-   * @param  {string} strID ID of the string to translate
-   * @param  {string} lang  The language to return the translation in
-   * @return {string}       The translated string
-   * @public
-   */
-  translate: function(strID, lang) {
-    return this.translationMap[strID][lang];
-  },
-
-  /**
    * Simplify the character object
    * @param  {object} character Character returned from backend
    * @return {object}           The transformed character
@@ -132,6 +111,7 @@ var RecordingExercise = Exercise.extend({
 
     var transformedScripts = [];
 
+    // Transform the script into something we can use
     scripts.forEach(function(item, i, arr) {
 
       // We're doing this in pairs, so ignore odd numbers

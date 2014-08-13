@@ -9,8 +9,9 @@ var AudioConstants = Constants.Audio;
 
 var _tokens = {};
 
-// Assume that we'll keep track of audioplayers by what
-// their src file is
+// We'll keep track of audios by their src file...
+// Not likely we'll have the multiple audioplayers on screen with the 
+// same src
 
 function _create(token) {
   _tokens[token] = {
@@ -20,11 +21,11 @@ function _create(token) {
   };
 }
 
-function _setDuration(token, duration) {
+function _setDuration(token, seconds) {
   if (!_tokens[token]) {
     _create(token);
   }
-  _tokens[token].duration = duration;
+  _tokens[token].duration = seconds * 1000;
 }
 
 function _play(token){
@@ -35,23 +36,14 @@ function _play(token){
   // Stop all other tokens first
   for (var tok in _tokens) {
     _tokens[tok].isPlaying = AudioConstants.AUDIO_STOPPED;
-
-    // Disable all other players too
-    _tokens[tok].isDisabled = true;
   }
 
-  // Now play ours
-  _tokens[token].isDisabled = false;
+  // Now start ours
   _tokens[token].isPlaying = AudioConstants.AUDIO_PLAYING;
 }
 
 function _stop(token) {
   _tokens[token].isPlaying = AudioConstants.AUDIO_STOPPED;
-
-  for (var tok in _tokens) {
-    // re-enable all other players too
-    _tokens[tok].isDisabled = false;
-  }
 }
 
 var AudioStore = merge(Store, {

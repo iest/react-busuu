@@ -32,11 +32,22 @@ module.exports = {
     AUDIO_DESTROY: null
   }),
 
-  ActionTypes: keyMirror({
+  Recording: keyMirror({
+    // States
+    RECORD_RECORDING: null,
+    RECORD_NOT_RECORDING: null,
+    RECORD_PLAYING: null,
+    RECORD_STOPPED: null,
 
-    RECIEVE_RAW_EXERCISE: null,
-
+    // Actions
     RECORD_START: null,
-    RECORD_END: null
+    RECORD_END: null,
+    RECORD_PLAY: null,
+    RECORD_STOP: null,
+    RECORD_DESTROY: null
+  }),
+
+  ActionTypes: keyMirror({
+    RECIEVE_RAW_EXERCISE: null,
   })
 };

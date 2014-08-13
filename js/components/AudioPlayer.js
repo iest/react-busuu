@@ -50,6 +50,11 @@ var AudioPlayer = React.createClass({
   play: function() {
     AudioActions.play(this.props.src);
   },
+  progress: function(stuff) {
+    console.log(stuff);
+    // var progress = this.refs.audioObject.getDOMNode().duration;
+    // AudioActions.progress(this.props.src);
+  },
   stop: function() {
     AudioActions.stop(this.props.src);
   },
@@ -74,6 +79,7 @@ var AudioPlayer = React.createClass({
   componentDidMount: function () {
     var audioElement = this.refs.audioObject.getDOMNode();
     audioElement.addEventListener('ended', this.stop);
+    audioElement.removeEventListener('progress', this.progress);
     audioElement.addEventListener('loadeddata', this.handleLoad);
     
     AudioStore.addChangeListener(this._onChange);
@@ -82,6 +88,7 @@ var AudioPlayer = React.createClass({
 
     var audioElement = this.refs.audioObject.getDOMNode();
     audioElement.removeEventListener('ended', this.stop);
+    audioElement.removeEventListener('progress', this.progress);
     audioElement.removeEventListener('loadeddata', this.handleLoad);
 
     AudioActions.destroy(this.props.src);

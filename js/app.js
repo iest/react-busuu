@@ -41,6 +41,13 @@
 var React = require('react');
 window.React = React; // This is so you can use the chrome react inspector
 
+// Unique ID generator
+var id = 0;
+window.uniqueId = function(prefix) {
+  var id = ++idCounter;
+  return String(prefix === undefined ? '' : prefix) + id;
+};
+
 var RecordingExercise = require('./components/RecordingExercise.react');
 
 

@@ -151,7 +151,7 @@ var conversationGroup = React.createClass({
               </div>
               <p>{question[LearningLang].value}</p>
             </div>
-            <panelFooter isActive={exercise.chosenCharacter.name === question.character.name && !isAutoPlaying}/>
+            <panelFooter isActive={exercise.chosenCharacter.name === question.character.name}/>
           </div>
         </div>
 
@@ -169,7 +169,7 @@ var conversationGroup = React.createClass({
               </div>
               <p>{answer[LearningLang].value}</p>
             </div>
-            <panelFooter isActive={exercise.chosenCharacter.name === answer.character.name && !isAutoPlaying}/>
+            <panelFooter isActive={exercise.chosenCharacter.name === answer.character.name}/>
           </div>
         </div>
       </div>

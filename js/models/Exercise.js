@@ -60,6 +60,31 @@ var Exercise = Class.extend({
      * @type {Boolean}
      */
     this.isCompleted = false;
+
+    /**
+     * The current active stage for this exercise
+     * @type {object}
+     */
+    this.activeStage = null;
+
+    /**
+     * [nextStage description]
+     * @return {[type]} [description]
+     */
+    this.nextStage = function() {
+      this.activeStage++;
+    };
+
+
+    /**
+     * Translate the given string ID
+     * @param  {string} strID ID of the string to translate
+     * @param  {string} lang  The language to return the translation in
+     * @return {string}       The translated string
+     */
+    this.translate = function(strID, lang) {
+      return this.translationMap[strID][lang];
+    };
   }
 });
 
