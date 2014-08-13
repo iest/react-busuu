@@ -6,9 +6,22 @@ var React = require('react');
 
 var RecordingActions = require('../actions/RecordingActions');
 var RecordingConstants = require('../constants/Constants').Recording;
+var RecordingStore = require('../stores/RecordingStore');
+
+function getStateFromStore(id) {
+  return RecordingStore.get(id);
+}
 
 var RecorderComponent = React.createClass({
   id: uniqueId('recording'),
+  getInitialState: function() {
+    var _this = this;
+    return {
+      id: _this.id,
+      isRecording: RecordingConstants.RECORD_NOT_RECORDING,
+      isPlaying: RecordingConstants.RECORD_STOPPED
+    };
+  },
   toggleRecord: function() {
     if (this.state.isRecording === RecordingConstants.RECORD_RECORDING) {
       this.stopRecording();
@@ -23,18 +36,22 @@ var RecorderComponent = React.createClass({
     RecordingActions.stopRecording(this.id);
   },
   togglePlay: function() {
-    
+    if (this.state.isPlaying === RecordingConstants.RECORD_PLAYING) {
+      this.stop();
+    } else if (this.state.isPlaying === RecordingConstants.RECORD_STOPPED) {
+      this.play();
+    }
   },
   play: function() {
-    
+    RecordingActions.play(this.id);
   },
   stop: function() {
-    
+    RecordingActions.stop(this.id);
   },
   render: function () {
 
-    var isRecording = false;
-    var isPlaying = false;
+    var isRecording = this.state.isRecording === RecordingConstants.RECORD_RECORDING;
+    var isPlaying = this.state.isPlaying === RecordingConstants.RECORD_PLAYING;
 
     return (
       <span>
@@ -56,6 +73,14 @@ var RecorderComponent = React.createClass({
         window.Recorder.showFlash();
       }
     });
+
+    RecordingStore.addChangeListener(this._onChange);
+  },
+  componentWillUnmount: function() {
+    RecordingStore.removeChangeListener(this._onChange);
+  },
+  _onChange: function() {
+    this.setState(getStateFromStore(this.id));
   }
 });
 
@@ -190,10 +215,6 @@ window.Recorder = {
     window.setTimeout(fn, 1);
   },
 
-  _setupFlashContainer: function() {
-    // this.options.flashContainer.setAttribute("style", "position: fixed; left: -9999px; top: -9999px; width: 230px; height: 140px;z-index: 9999;");
-  },
-
   _clearFlash: function() {
     var flashElement = this.options.flashContainer.children[0];
     if (flashElement) {
@@ -211,7 +232,6 @@ window.Recorder = {
     }, undefined, function(e) {
       if (e.success) {
         Recorder.swfObject = e.ref;
-        Recorder._checkForFlashBlock();
       } else {
         Recorder._showFlashRequiredDialog();
       }
@@ -224,15 +244,6 @@ window.Recorder = {
 
   _hideFlash: function() {
     document.querySelector('.recorderFlashWrapper').classList.remove('active');
-  },
-
-  _checkForFlashBlock: function() {
-    // $timeout(function() {
-    //   if (!Recorder._initialized) {
-    //     Recorder.triggerEvent("showFlash");
-    //     console.log("triggered");
-    //   }
-    // }, 500);
   },
 
   _showFlashRequiredDialog: function() {
