@@ -23,6 +23,7 @@ var RecorderComponent = React.createClass({
     };
   },
   toggleRecord: function() {
+    console.log(this.state.isRecording);
     if (this.state.isRecording === RecordingConstants.RECORD_RECORDING) {
       this.stopRecording();
     } else {
@@ -30,10 +31,22 @@ var RecorderComponent = React.createClass({
     }
   },
   startRecording: function() {
-    RecordingActions.startRecording(this.id);
+    var _this = this;
+
+    Recorder.record({
+      start: function() {
+        console.log('START');
+        RecordingActions.startRecording(_this.id);
+      },
+      cancel: function() {
+        console.log("STOP");
+        RecordingActions.stopRecording(_this.id);
+      }
+    });
   },
   stopRecording: function() {
-    RecordingActions.stopRecording(this.id);
+    Recorder.stop();
+    RecordingActions.stop(this.id);
   },
   togglePlay: function() {
     if (this.state.isPlaying === RecordingConstants.RECORD_PLAYING) {
@@ -43,7 +56,16 @@ var RecorderComponent = React.createClass({
     }
   },
   play: function() {
-    RecordingActions.play(this.id);
+    var _this = this;
+
+    Recorder.play({
+      progress: function() {
+        console.log("Progress", new Date().getTime());
+      },
+      finish: function() {
+        console.log("finished"); 
+      }
+    });
   },
   stop: function() {
     RecordingActions.stop(this.id);
@@ -61,16 +83,18 @@ var RecorderComponent = React.createClass({
         <button className="btn btn--icon btn--secondary mrm" onClick={this.togglePlay}>
           {isPlaying ? "◼︎":"▶︎"}
         </button>
+        {this.state}
       </span>
     );
   },
   componentDidMount: function() {
-    window.Recorder.initialize({
-      swfSrc: "lib/recorder/recorder.swf",
+    var _this = this;
+
+    Recorder.initialize({
+      swfSrc: "/recorder.swf",
       flashContainer: document.getElementById("recorderFlashContainer"),
       initialized: function() {
-        debugger;
-        window.Recorder.showFlash();
+        console.log("initialised");
       }
     });
 
@@ -80,18 +104,47 @@ var RecorderComponent = React.createClass({
     RecordingStore.removeChangeListener(this._onChange);
   },
   _onChange: function() {
-    this.setState(getStateFromStore(this.id));
+    var currentState = getStateFromStore(this.id);
+
+    if (!currentState) {
+      return;
+    }
+
+    this.setState(currentState, function() {
+      Recorder.setActiveBuffer(currentState.index);
+
+      if (currentState.isRecording === RecordingConstants.RECORD_RECORDING) {
+        Recorder.record();
+        return;
+      }
+      if (currentState.isRecording === RecordingConstants.RECORD_NOT_RECORDING) {
+        Recorder.stop();
+        return;
+      }
+      if (currentState.isRecording === RecordingConstants.RECORD_PLAYING) {
+        Recorder.play();
+        return;
+      }
+      if (currentState.isRecording === RecordingConstants.RECORD_STOPPED) {
+        Recorder.stop();
+        return;
+      }
+    });
+
   }
 });
 
-window.Recorder = {
+/**
+ * Global window Recorder object
+ * @type {Object}
+ */
+var Recorder = {
   swfObject: null,
   _callbacks: {},
   _events: {},
   _initialized: false,
   options: {},
   initialize: function(options) {
-
     this.options = options || {};
 
     this.bind('initialized', function() {
@@ -211,6 +264,14 @@ window.Recorder = {
     }
   },
 
+  _isMicMuted: function() {
+    if (this._initialized) {
+      return this.flashInterface().isMicMuted();
+    } else {
+      return false;
+    }
+  },
+
   _executeInWindowContext: function(fn) {
     window.setTimeout(fn, 1);
   },
@@ -261,5 +322,6 @@ window.Recorder = {
       .replace(/%25/g, "%");
   }
 };
+window.Recorder = Recorder;
 
 module.exports = RecorderComponent;

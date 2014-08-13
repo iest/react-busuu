@@ -22,7 +22,7 @@ module.exports = {
   },
   stop: function(id) {
     AppDispatcher.handleViewAction({
-      actionType: RecordingConstants.RECORD_STOP,
+      actionType: RecordingConstants.RECORD_END,
       id: id
     });
   },

@@ -8,12 +8,15 @@ var Constants = require('../constants/Constants');
 var RecordingConstants = Constants.Recording;
 
 var _recordings = {};
+var indexCounter = 0;
 
 function create(id) {
   _recordings[id] = {
     isRecording: RecordingConstants.RECORD_NOT_RECORDING,
-    isPlaying: RecordingConstants.RECORD_STOPPED
+    isPlaying: RecordingConstants.RECORD_STOPPED,
+    bufferIndex: indexCounter
   };
+  indexCounter++;
   return _recordings[id];
 }
 
