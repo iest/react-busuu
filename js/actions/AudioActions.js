@@ -15,6 +15,16 @@ module.exports = {
       token: token
     });
   },
+
+  /**
+   * Play an array of tokens in sequence
+   */
+  playSequence: function(tokenArr) {
+    AppDispatcher.handleViewAction({
+      actionType: AudioConstants.AUDIO_START_SEQUENCE,
+      tokens: tokenArr
+    });
+  },
   stop: function(token) {
     AppDispatcher.handleViewAction({
       actionType: AudioConstants.AUDIO_STOP,

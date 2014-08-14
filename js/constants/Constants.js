@@ -34,6 +34,8 @@ module.exports = {
     // Actions
     SET_DURATION: null,
     AUDIO_START: null,
+    AUDIO_START_SEQUENCE: null,
+    AUDIO_STOP_SEQUENCE: null,
     AUDIO_STOP: null,
     AUDIO_DESTROY: null
   }),

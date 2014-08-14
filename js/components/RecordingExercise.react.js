@@ -96,44 +96,18 @@ var panelFooter = React.createClass({
 });
 
 var conversationGroup = React.createClass({
+
   autoPlay: function() {
-    var _this = this;
-    var haveAutoPlayed = false;
-    var firstAudio = this.props.script.question[LearningLang].audio;
-    var secondAudio = this.props.script.answer[LearningLang].audio;
-
-    var isWaitingForFirstToEnd = false;
-
-    function playFirstThenSecond() {
-      var exercise = getExerciseState(_this.props.exercise.id).exercise;
-
-      if (haveAutoPlayed) return;
-
-      if (exercise.currentPlayingAudio === firstAudio) {
-        isWaitingForFirstToEnd = true;
-      } else if (isWaitingForFirstToEnd) {
-        setTimeout(function() {
-          AudioActions.play(secondAudio);
-          isWaitingForFirstToEnd = false;
-          haveAutoPlayed = true;
-          tearDownListener();
-        }, 0);
-      }
-    }
-
-    function tearDownListener() {
-      ExerciseStore.removeChangeListener(playFirstThenSecond);  
-    }
-
-    // Listen out for the first token finishing
-    ExerciseStore.addChangeListener(playFirstThenSecond);
-
-    setTimeout(function() {
-      AudioActions.play(firstAudio);
-    }, 800);
+    AudioActions.playSequence([
+      this.props.script.question[LearningLang].audio,
+      this.props.script.answer[LearningLang].audio
+      ]);
   },
   componentDidMount: function() {
-    this.autoPlay();
+    var _this = this;
+    setTimeout(function() {
+      _this.autoPlay();
+    }, 500);
   },
   render: function () {
     var _this = this;
