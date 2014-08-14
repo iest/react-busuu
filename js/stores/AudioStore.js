@@ -73,7 +73,7 @@ var AudioStore = merge(Store, {
 });
 
 
-AppDispatcher.register(function(payload) {
+AudioStore.dispatchToken = AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {
@@ -86,10 +86,6 @@ AppDispatcher.register(function(payload) {
       AudioStore.emitChange();
       break;
     case AudioConstants.AUDIO_STOP:
-      _stop(action.token);
-      AudioStore.emitChange();
-      break;
-    case AudioConstants.AUDIO_END:
       _stop(action.token);
       AudioStore.emitChange();
       break;

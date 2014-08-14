@@ -4,8 +4,9 @@
 
 ## TODO
 
-- [ ] Add recorder (and flash...)
+- [ ] Finish exerciseStore setPlaying
 - [ ] write up why this is cool
+- [x] Add recorder (and flash...)
 - [x] Copy over Dispatcher from Chat Flux example
 - [x] Create Exercise actions to handle everything that happens in an exercise
 - [x] Change all `setState` calls inside `RecordingExercise.react` to be handled by the Dispatcher and registered callbacks (flux)

@@ -4,6 +4,12 @@
 
 var keyMirror = require('react/lib/keyMirror');
 
+/**
+ * All the constants for the application.
+ *
+ * These should be split out into STATES and ACTION_TYPES
+ * @type {Object}
+ */
 module.exports = {
 
   ExerciseTypes: {
@@ -28,7 +34,7 @@ module.exports = {
     // Actions
     SET_DURATION: null,
     AUDIO_START: null,
-    AUDIO_END: null,
+    AUDIO_STOP: null,
     AUDIO_DESTROY: null
   }),
 

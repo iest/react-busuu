@@ -17,7 +17,7 @@ module.exports = {
   },
   stop: function(token) {
     AppDispatcher.handleViewAction({
-      actionType: AudioConstants.AUDIO_END,
+      actionType: AudioConstants.AUDIO_STOP,
       token: token
     });
   },

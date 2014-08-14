@@ -96,6 +96,45 @@ var panelFooter = React.createClass({
 });
 
 var conversationGroup = React.createClass({
+  autoPlay: function() {
+    var _this = this;
+    var haveAutoPlayed = false;
+    var firstAudio = this.props.script.question[LearningLang].audio;
+    var secondAudio = this.props.script.answer[LearningLang].audio;
+
+    var isWaitingForFirstToEnd = false;
+
+    function playFirstThenSecond() {
+      var exercise = getExerciseState(_this.props.exercise.id).exercise;
+
+      if (haveAutoPlayed) return;
+
+      if (exercise.currentPlayingAudio === firstAudio) {
+        isWaitingForFirstToEnd = true;
+      } else if (isWaitingForFirstToEnd) {
+        setTimeout(function() {
+          AudioActions.play(secondAudio);
+          isWaitingForFirstToEnd = false;
+          haveAutoPlayed = true;
+          tearDownListener();
+        }, 0);
+      }
+    }
+
+    function tearDownListener() {
+      ExerciseStore.removeChangeListener(playFirstThenSecond);  
+    }
+
+    // Listen out for the first token finishing
+    ExerciseStore.addChangeListener(playFirstThenSecond);
+
+    setTimeout(function() {
+      AudioActions.play(firstAudio);
+    }, 800);
+  },
+  componentDidMount: function() {
+    this.autoPlay();
+  },
   render: function () {
     var _this = this;
     var exercise = this.props.exercise;
@@ -104,7 +143,6 @@ var conversationGroup = React.createClass({
 
     return(
       <div>
-        <pre>{exercise.currentPlayingAudio}</pre>
         <h3 className="bold mbl">Listen and then record yourself speaking</h3>
         <div className="exercise--golf__section--left">
           <div className="exercise--golf__panel__avatar">

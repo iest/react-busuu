@@ -11,8 +11,8 @@
  */
 
 
- var merge = require('react/lib/merge');
- var request = require('superagent');
+var merge = require('react/lib/merge');
+var request = require('superagent');
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var Store = require('./Store');
@@ -22,10 +22,12 @@ var AudioConstants = Constants.Audio;
 var ExerciseConstants = Constants.Exercise;
 var ExerciseTypes = Constants.ExerciseTypes;
 
-var AudioStore
+var AudioStore = require('./AudioStore');
 
 var RecordingExercise = require('../models/exercises/RecordingExercise');
 
+var LearningLang = 'fr';
+var SpeakingLang = 'enc';
 
 var _exercises = {};
 
@@ -33,21 +35,23 @@ var _exercises = {};
 
 function create(exe) {
   switch (exe.type) {
-    
+
     case ExerciseTypes.RECORDING:
       return new RecordingExercise(exe);
 
-    case ExerciseTypes.VOCABULARY :
+    case ExerciseTypes.VOCABULARY:
       return {}; // Would return other types here too
 
     default:
       throw new Error("No type matching " + exe.type);
   }
 }
+
 function setCharacter(id, char) {
   _exercises[id].chosenCharacter = char;
   _exercises[id].nextStage();
 }
+
 function setPass(id) {
   _exercises[id].isFailed = false;
   _exercises[id].isPassed = true;
@@ -58,8 +62,48 @@ function setFail(id) {
   _exercises[id].isFailed = true;
 }
 
-function setPlaying(id, token) {
-  _exercises[id].currentPlayingAudio = token;
+function findExerciseByToken(token) {
+  var foundExercise;
+  // Find the given token in our exercises
+  // This is horrible but not sure how else to do it ¯\_(ツ)_/¯
+  for (var k in _exercises) {
+    var exercise = _exercises[k];
+    for (var i = 0; i < exercise.script.length; i++) {
+      if (exercise.script[i].answer[SpeakingLang].audio === token ||
+        exercise.script[i].answer[LearningLang].audio === token ||
+        exercise.script[i].question[SpeakingLang].audio === token ||
+        exercise.script[i].question[LearningLang].audio === token) {
+        foundExercise = exercise;
+        break;
+      }
+    }
+  }
+
+  if (foundExercise){
+    return foundExercise;
+  } else {
+    return null;
+  }
+}
+
+function setPlaying(token) {
+  var exercise = findExerciseByToken(token);
+
+  if (exercise) {
+    _exercises[exercise.id].currentPlayingAudio = token;
+  } else {
+    throw "failed to set currentPlayingAudio for token " + token;
+  }
+}
+
+function cancelPlaying(token) {
+  var exercise = findExerciseByToken(token);
+
+  if (exercise) {
+    _exercises[exercise.id].currentPlayingAudio = null;
+  } else {
+    throw "failed to set currentPlayingAudio for token " + token;
+  }
 }
 
 var ExerciseStore = merge(Store, {
@@ -114,7 +158,13 @@ AppDispatcher.register(function(payload) {
       ExerciseStore.emitChange();
       break;
     case AudioConstants.AUDIO_START:
-      setPlaying(action.id, action.token);
+      AppDispatcher.waitFor([AudioStore.dispatchToken]);
+      setPlaying(action.token);
+      ExerciseStore.emitChange();
+      break;
+    case AudioConstants.AUDIO_STOP:
+      AppDispatcher.waitFor([AudioStore.dispatchToken]);
+      cancelPlaying(action.token);
       ExerciseStore.emitChange();
       break;
     default:
