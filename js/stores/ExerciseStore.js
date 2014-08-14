@@ -5,7 +5,11 @@
  * - Fetches a given exercise from the backend (dummy response for now)
  * - Transforms it into a sensible model
  * - Stores it
+ *
+ * This should be split out into a RecordingExerciseStore in a real
+ * implementation.
  */
+
 
  var merge = require('react/lib/merge');
  var request = require('superagent');
@@ -14,8 +18,12 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var Store = require('./Store');
 
 var Constants = require('../constants/Constants');
+var AudioConstants = Constants.Audio;
 var ExerciseConstants = Constants.Exercise;
 var ExerciseTypes = Constants.ExerciseTypes;
+
+var AudioStore
+
 var RecordingExercise = require('../models/exercises/RecordingExercise');
 
 
@@ -48,6 +56,10 @@ function setPass(id) {
 function setFail(id) {
   _exercises[id].isPassed = false;
   _exercises[id].isFailed = true;
+}
+
+function setPlaying(id, token) {
+  _exercises[id].currentPlayingAudio = token;
 }
 
 var ExerciseStore = merge(Store, {
@@ -99,6 +111,10 @@ AppDispatcher.register(function(payload) {
       break;
     case ExerciseConstants.EXERCISE_FAIL:
       setFail(action.id);
+      ExerciseStore.emitChange();
+      break;
+    case AudioConstants.AUDIO_START:
+      setPlaying(action.id, action.token);
       ExerciseStore.emitChange();
       break;
     default:

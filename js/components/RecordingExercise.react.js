@@ -13,6 +13,8 @@ var LearningLang = 'fr';
 var SpeakingLang = 'enc';
 
 var ExerciseStore = require('../stores/ExerciseStore');
+var AudioStore = require('../stores/AudioStore');
+var RecordingStore = require('../stores/RecordingStore');
 var ExerciseActions = require('../actions/ExerciseActions');
 
 var Recorder = require('./Recorder');
@@ -94,24 +96,15 @@ var panelFooter = React.createClass({
 });
 
 var conversationGroup = React.createClass({
-  autoPlay: function() {
-    var _this = this;
-
-    var questionAudio = this.props.script.question.audio;
-    var answerAudio = this.props.script.answer.audio;
-
-    AudioActions.play(questionAudio);
-  },
   render: function () {
     var _this = this;
-
     var exercise = this.props.exercise;
     var question = this.props.script.question;
     var answer = this.props.script.answer;
 
     return(
       <div>
-        <h1>{this.state.audioIsPlaying}</h1>
+        <pre>{exercise.currentPlayingAudio}</pre>
         <h3 className="bold mbl">Listen and then record yourself speaking</h3>
         <div className="exercise--golf__section--left">
           <div className="exercise--golf__panel__avatar">
@@ -119,7 +112,7 @@ var conversationGroup = React.createClass({
           </div>
           <div className={cx({
             "panel panel-tick-left panel-border--bs-grey panel-bg--white text-left text-medium": true,
-            active: _this.state.audioIsPlaying && _this.state.playingSrc === question[LearningLang].audio
+            "active": exercise.currentPlayingAudio === question[LearningLang].audio
           })}>
             <div className="panel__inner exercise--golf__panel__inside">
               <div>
@@ -137,7 +130,7 @@ var conversationGroup = React.createClass({
           </div>
           <div className={cx({
             "panel panel-tick-right panel-border--bs-grey panel-bg--white text-left text-medium": true,
-            active: _this.state.audioIsPlaying && _this.state.playingSrc === answer[LearningLang].audio
+            "active": exercise.currentPlayingAudio === answer[LearningLang].audio
           })}>
             <div className="panel__inner exercise--golf__panel__inside">
               <div>
@@ -150,12 +143,6 @@ var conversationGroup = React.createClass({
         </div>
       </div>
     );
-  },
-  componentDidMount: function() {
-    var _this = this;
-    setTimeout(function() {
-      
-    }, 500);
   }
 });
 
@@ -164,7 +151,7 @@ var conversationStage = React.createClass({
     return {
       hasRecorded: false,
       isRecording: false,
-      currentPlayingToken: null
+      currentPlayingAudio: null
     };
   },
   render: function() {
@@ -191,7 +178,9 @@ var previewStage = React.createClass({
   }
 });
 
-// The full exercise
+/**
+ * The Controller-view for the entire recording exercise.
+ */
 var RecordingExercise = React.createClass({
 
   render: function() {
@@ -252,6 +241,8 @@ var RecordingExercise = React.createClass({
 
   componentWillUnmount: function() {
     ExerciseStore.removeChangeListener(this._onChange);
+    AudioStore.removeChangeListener(this._onChange);
+    RecordingStore.removeChangeListener(this._onChange);
   }
 });
 

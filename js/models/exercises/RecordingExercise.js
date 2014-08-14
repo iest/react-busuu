@@ -80,6 +80,12 @@ var RecordingExercise = Exercise.extend({
   chosenCharacter: null,
 
   /**
+   * The src of the currently playing audio
+   * @type {string}
+   */
+  currentPlayingAudio: null,
+
+  /**
    * Simplify the character object
    * @param  {object} character Character returned from backend
    * @return {object}           The transformed character
