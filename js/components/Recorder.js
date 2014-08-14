@@ -23,7 +23,6 @@ var RecorderComponent = React.createClass({
     };
   },
   toggleRecord: function() {
-    console.log(this.state.isRecording);
     if (this.state.isRecording === RecordingConstants.RECORD_RECORDING) {
       this.stopRecording();
     } else {
@@ -33,13 +32,12 @@ var RecorderComponent = React.createClass({
   startRecording: function() {
     var _this = this;
 
+    // Have to send action from flashRecorder callback
     Recorder.record({
       start: function() {
-        console.log('START');
         RecordingActions.startRecording(_this.id);
       },
       cancel: function() {
-        console.log("STOP");
         RecordingActions.stopRecording(_this.id);
       }
     });
@@ -60,10 +58,8 @@ var RecorderComponent = React.createClass({
 
     Recorder.play({
       progress: function() {
-        console.log("Progress", new Date().getTime());
       },
       finish: function() {
-        console.log("finished"); 
       }
     });
   },
@@ -83,7 +79,6 @@ var RecorderComponent = React.createClass({
         <button className="btn btn--icon btn--secondary mrm" onClick={this.togglePlay}>
           {isPlaying ? "◼︎":"▶︎"}
         </button>
-        {this.state}
       </span>
     );
   },
@@ -94,7 +89,6 @@ var RecorderComponent = React.createClass({
       swfSrc: "/recorder.swf",
       flashContainer: document.getElementById("recorderFlashContainer"),
       initialized: function() {
-        console.log("initialised");
       }
     });
 

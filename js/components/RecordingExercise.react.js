@@ -18,6 +18,8 @@ var ExerciseActions = require('../actions/ExerciseActions');
 var Recorder = require('./Recorder');
 var AudioPlayer = require('./AudioPlayer');
 
+var AudioActions = require('../actions/AudioActions');
+
 function getExerciseState(id) {
   var exercise = ExerciseStore.get(id);
 
@@ -32,6 +34,7 @@ function getExerciseState(id) {
   }
 }
 
+// The circular button with character image inside
 var characterButton = React.createClass({
   _handleClick: function(event) {
     var char = this.props.character;
@@ -46,7 +49,7 @@ var characterButton = React.createClass({
   }
 });
 
-// Stages
+// Stage 1
 var characterSelectionStage = React.createClass({
 
   _setSelectedCharacter: function(character) {
@@ -91,39 +94,13 @@ var panelFooter = React.createClass({
 });
 
 var conversationGroup = React.createClass({
-  getInitialState: function() {
-    return {
-      isAutoPlaying: true,
-      audioIsPlaying: false,
-      playingSrc: null
-    };
-  },
-  autoPlayPromise: {},
-  cancelAutoPlay: function() {
-    this.setState({
-      isAutoPlaying: false
-    });
-  },
   autoPlay: function() {
     var _this = this;
 
-    this.setState({
-      isAutoPlaying: true
-    });
-    this.autoPlayPromise = new Promise(function(resolve, reject) {
+    var questionAudio = this.props.script.question.audio;
+    var answerAudio = this.props.script.answer.audio;
 
-      _this.autoPlayPromise.resolve = resolve;
-      _this.autoPlayPromise.reject = reject;
-
-      _this.refs.questionAudio.play()
-        .then(function() {
-          return _this.refs.answerAudio.play();
-        })
-        .then(function() {
-          _this.cancelAutoPlay();
-          resolve();
-        });
-    });
+    AudioActions.play(questionAudio);
   },
   render: function () {
     var _this = this;
@@ -131,7 +108,6 @@ var conversationGroup = React.createClass({
     var exercise = this.props.exercise;
     var question = this.props.script.question;
     var answer = this.props.script.answer;
-    var isAutoPlaying = this.state.isAutoPlaying;
 
     return(
       <div>
@@ -147,7 +123,7 @@ var conversationGroup = React.createClass({
           })}>
             <div className="panel__inner exercise--golf__panel__inside">
               <div>
-                <AudioPlayer ref="questionAudio" src={question[LearningLang].audio}/>
+                <AudioPlayer src={question[LearningLang].audio}/>
               </div>
               <p>{question[LearningLang].value}</p>
             </div>
@@ -165,7 +141,7 @@ var conversationGroup = React.createClass({
           })}>
             <div className="panel__inner exercise--golf__panel__inside">
               <div>
-                <AudioPlayer ref="answerAudio" onPlay={this.handleAudioStart} onStop={this.handleAudioStop} src={answer[LearningLang].audio}/>
+                <AudioPlayer src={answer[LearningLang].audio}/>
               </div>
               <p>{answer[LearningLang].value}</p>
             </div>
@@ -177,9 +153,9 @@ var conversationGroup = React.createClass({
   },
   componentDidMount: function() {
     var _this = this;
-    // setTimeout(function() {
-    //   _this.autoPlay();
-    // }, 500);
+    setTimeout(function() {
+      
+    }, 500);
   }
 });
 

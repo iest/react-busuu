@@ -17,6 +17,12 @@ function create(id) {
     bufferIndex: indexCounter
   };
   indexCounter++;
+
+  // A primitive way of getting a new index for the recorder each time
+  // a new recording ID is added. This is inefficient as the recorder
+  // will just keep all recordings in memory (flash) for the duration
+  // of it's life
+
   return _recordings[id];
 }
 
