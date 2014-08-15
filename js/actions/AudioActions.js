@@ -1,5 +1,7 @@
 var AppDispatcher = require('../dispatcher/AppDispatcher');
-var AudioConstants = require('../constants/Constants').Audio;
+var Constants = require('../constants/Constants');
+var AudioConstants = Constants.Audio;
+var AutoPlayConstants = Constants.AutoPlay;
 
 module.exports = {
   setDuration: function(token, duration) {
@@ -15,26 +17,31 @@ module.exports = {
       token: token
     });
   },
-
-  /**
-   * Play an array of tokens in sequence
-   */
-  playSequence: function(tokenArr) {
-    AppDispatcher.handleViewAction({
-      actionType: AudioConstants.AUDIO_START_SEQUENCE,
-      tokens: tokenArr
-    });
-  },
   stop: function(token) {
     AppDispatcher.handleViewAction({
       actionType: AudioConstants.AUDIO_STOP,
       token: token
     });
   },
+
   destroy: function(token) {
     AppDispatcher.handleViewAction({
       actionType: AudioConstants.AUDIO_DESTROY,
       token: token
+    });
+  },
+
+  // For store use only
+  playSequence: function(tokenArr) {
+    AppDispatcher.handleStoreAction({
+      actionType: AutoPlayConstants.AUDIO_START_SEQUENCE,
+      tokens: tokenArr
+    });
+  },
+  haltSequence: function(tokenArr) {
+    AppDispatcher.handleStoreAction({
+      actionType: AutoPlayConstants.AUDIO_START_SEQUENCE,
+      tokens: tokenArr
     });
   }
 };

@@ -158,12 +158,10 @@ AppDispatcher.register(function(payload) {
       ExerciseStore.emitChange();
       break;
     case AudioConstants.AUDIO_START:
-      AppDispatcher.waitFor([AudioStore.dispatchToken]);
       setPlaying(action.token);
       ExerciseStore.emitChange();
       break;
     case AudioConstants.AUDIO_STOP:
-      AppDispatcher.waitFor([AudioStore.dispatchToken]);
       cancelPlaying(action.token);
       ExerciseStore.emitChange();
       break;

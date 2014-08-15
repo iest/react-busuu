@@ -15,11 +15,12 @@ var SpeakingLang = 'enc';
 var ExerciseStore = require('../stores/ExerciseStore');
 var AudioStore = require('../stores/AudioStore');
 var RecordingStore = require('../stores/RecordingStore');
-var ExerciseActions = require('../actions/ExerciseActions');
+var AutoPlayStore = require('../stores/AutoPlayStore');
 
 var Recorder = require('./Recorder');
 var AudioPlayer = require('./AudioPlayer');
 
+var ExerciseActions = require('../actions/ExerciseActions');
 var AudioActions = require('../actions/AudioActions');
 
 function getExerciseState(id) {
@@ -249,12 +250,16 @@ var RecordingExercise = React.createClass({
   },
   componentDidMount: function() {
     ExerciseStore.addChangeListener(this._onChange);
+    AudioStore.addChangeListener(this._onChange);
+    RecordingStore.addChangeListener(this._onChange);
+    AutoPlayStore.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function() {
     ExerciseStore.removeChangeListener(this._onChange);
     AudioStore.removeChangeListener(this._onChange);
     RecordingStore.removeChangeListener(this._onChange);
+    AutoPlayStore.removeChangeListener(this._onChange);
   }
 });
 

@@ -20,6 +20,18 @@ var AppDispatcher = copyProperties(new Dispatcher(), {
       source: 'VIEW_ACTION',
       action: action
     });
+  },
+
+  /**
+   * A bridge between a store and the dispatcher, for special cases where a
+   * store needs to manipulate another store.
+   * @param  {[type]} action [description]
+   */
+  handleStoreAction: function(action) {
+    this.dispatch({
+      source: 'STORE_ACTION',
+      action: action
+    });
   }
 
 });

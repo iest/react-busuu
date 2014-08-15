@@ -80,6 +80,12 @@ var RecordingExercise = Exercise.extend({
   chosenCharacter: null,
 
   /**
+   * If we're autoplaying within this exercise
+   * @type {Boolean}
+   */
+  isAutoPlaying: null,
+
+  /**
    * The src of the currently playing audio
    * @type {string}
    */

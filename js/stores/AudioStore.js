@@ -1,6 +1,5 @@
 var merge = require('react/lib/merge');
 var request = require('superagent');
-var Promise = require('es6-promise');
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var Store = require('./Store');
@@ -20,8 +19,7 @@ function create(token) {
   _tokens[token] = {
     isPlaying: AudioConstants.AUDIO_STOPPED,
     duration: 0,
-    isDisabled: false,
-    playPromise: null
+    isDisabled: false
   };
 }
 
@@ -44,33 +42,10 @@ function play(token) {
 
   // Now start ours
   _tokens[token].isPlaying = AudioConstants.AUDIO_PLAYING;
-  return new Promise(function(resolve, reject) {
-    _resolves[token] = resolve;
-    _rejects[token] = reject;
-  });
-}
-
-function playSequence(tokenArr) {
-  var _this = this;
-
-  // Pretty much what we want to do
-  // play(tokenArr[0]).then(function() {
-  //   return play(tokenArr[1]);
-  // }).then(function() {
-  //   return play(tokenArr[2]);
-  // });
-  
-  // For an infinite-length array...
-  tokenArr.forEach(function(token, i) {
-    Promise.resolve().then(function() {
-      _resolves[token]();
-    });
-  });
 }
 
 function stop(token) {
   _tokens[token].isPlaying = AudioConstants.AUDIO_STOPPED;
-  _resolves[token]();
 }
 
 var AudioStore = merge(Store, {
@@ -103,11 +78,6 @@ var AudioStore = merge(Store, {
 AudioStore.dispatchToken = AppDispatcher.register(function(payload) {
   var action = payload.action;
 
-  /**
-   * Could have an array of token:promises.
-   * On specific events, check if there's a promise to resolve.
-   */
-
   switch (action.actionType) {
     case AudioConstants.SET_DURATION:
       setDuration(action.token, action.duration);
@@ -115,14 +85,6 @@ AudioStore.dispatchToken = AppDispatcher.register(function(payload) {
       break;
     case AudioConstants.AUDIO_START:
       play(action.token);
-      AudioStore.emitChange();
-      break;
-    case AudioConstants.AUDIO_START_SEQUENCE:
-      playSequence(action.tokens);
-      AudioStore.emitChange();
-      break;
-    case AudioConstants.AUDIO_STOP_SEQUENCE:
-      // playSequence(action.tokens);
       AudioStore.emitChange();
       break;
     case AudioConstants.AUDIO_STOP:
@@ -133,12 +95,17 @@ AudioStore.dispatchToken = AppDispatcher.register(function(payload) {
       _destroy(action.token);
       AudioStore.emitChange();
       break;
+
+    case AudioConstants.AUDIO_START_SEQUENCE:
+
+      
+
+      break;
+
     default:
       // No change
       break;
   }
-
-  return true;
 });
 
 module.exports = AudioStore;

@@ -13,16 +13,27 @@ var keyMirror = require('react/lib/keyMirror');
 module.exports = {
 
   ExerciseTypes: {
+
+    // States
     RECORDING: 'recording',
     VOCABULARY: 'vocabulary'
   },
 
   Exercise: keyMirror({
+
+    // Actions
     CHOSE_CHARACTER: null,
     EXERCISE_CONTINUE: null,
     EXERCISE_PASS: null,
     EXERCISE_FAIL: null,
     EXERCISE_COMPLETE: null
+  }),
+
+  AutoPlay: keyMirror({
+
+    // Actions
+    AUDIO_START_SEQUENCE: null,
+    AUDIO_STOP_SEQUENCE: null,
   }),
 
   Audio: keyMirror({
@@ -34,8 +45,6 @@ module.exports = {
     // Actions
     SET_DURATION: null,
     AUDIO_START: null,
-    AUDIO_START_SEQUENCE: null,
-    AUDIO_STOP_SEQUENCE: null,
     AUDIO_STOP: null,
     AUDIO_DESTROY: null
   }),
