@@ -29,19 +29,5 @@ module.exports = {
       actionType: AudioConstants.AUDIO_DESTROY,
       token: token
     });
-  },
-
-  // For store use only
-  playSequence: function(tokenArr) {
-    AppDispatcher.handleStoreAction({
-      actionType: AutoPlayConstants.AUDIO_START_SEQUENCE,
-      tokens: tokenArr
-    });
-  },
-  haltSequence: function(tokenArr) {
-    AppDispatcher.handleStoreAction({
-      actionType: AutoPlayConstants.AUDIO_START_SEQUENCE,
-      tokens: tokenArr
-    });
   }
 };

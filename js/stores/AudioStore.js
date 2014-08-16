@@ -55,11 +55,19 @@ var AudioStore = merge(Store, {
   getAll: function() {
     return _tokens;
   },
-  getAllPlaying: function() {
-    var playing = [];
-    for (var tok in _tokens) {
-      if (tok.isPlaying === AudioConstants.AUDIO_PLAYING) {
-        playing.push(tok);
+
+  /**
+   * Return the key of the current playing audio
+   * @return {String}
+   */
+  getPlaying: function() {
+    var playing;
+
+    for (var k in _tokens) {
+      var token = _tokens[k];
+      if (token.isPlaying === AudioConstants.AUDIO_PLAYING) {
+        playing = k;
+        break;
       }
     }
     return playing;

@@ -15,13 +15,14 @@ var SpeakingLang = 'enc';
 var ExerciseStore = require('../stores/ExerciseStore');
 var AudioStore = require('../stores/AudioStore');
 var RecordingStore = require('../stores/RecordingStore');
-var AutoPlayStore = require('../stores/AutoPlayStore');
 
 var Recorder = require('./Recorder');
 var AudioPlayer = require('./AudioPlayer');
 
 var ExerciseActions = require('../actions/ExerciseActions');
 var AudioActions = require('../actions/AudioActions');
+
+var AudioConstants = require('../constants/Constants').Audio;
 
 function getExerciseState(id) {
   var exercise = ExerciseStore.get(id);
@@ -96,19 +97,63 @@ var panelFooter = React.createClass({
   }
 });
 
+// Stage 2 Part
 var conversationGroup = React.createClass({
-
-  autoPlay: function() {
-    AudioActions.playSequence([
-      this.props.script.question[LearningLang].audio,
-      this.props.script.answer[LearningLang].audio
-      ]);
-  },
-  componentDidMount: function() {
+  _waitingAudios: [],
+  _playingAudio: null,
+  _finishedAudios: [],
+  _nextAudio: function() {
     var _this = this;
     setTimeout(function() {
-      _this.autoPlay();
+      AudioActions.play(_this._waitingAudios[0]);
+    }, 0);
+  },
+  _audioChange: function() {
+    var allAudio = AudioStore.getAll();
+    var playingAudio = AudioStore.getPlaying();
+
+    // Our first waiting audio is now playing
+    if (this._waitingAudios[0] &&
+      this._waitingAudios[0] === playingAudio) {
+      this._playingAudio = this._waitingAudios.shift();
+      return;
+    }
+
+    // If our audio has now stopped
+    if (this._playingAudio &&
+      allAudio[this._playingAudio].isPlaying === AudioConstants.AUDIO_STOPPED) {
+      this._finishedAudios.push(this._playing);
+
+      if (this._waitingAudios.length) {
+        this._nextAudio();
+      }
+      return;
+    }
+  },
+  autoPlay: function(tokenArr) {
+    this._waitingAudios = tokenArr;
+    this._nextAudio();
+  },
+
+  nextScript: function() {
+    ExerciseActions.nextStep(this.props.exercise.id);
+  },
+
+  componentDidMount: function() {
+    var _this = this;
+
+    // Listen out for audio events
+    AudioStore.addChangeListener(this._audioChange);
+
+    setTimeout(function() {
+      _this.autoPlay([
+        _this.props.script.question[LearningLang].audio,
+        _this.props.script.answer[LearningLang].audio,
+        ]);
     }, 500);
+  },
+  componentWillUnmount: function() {
+    AudioStore.removeChangeListener(this._audioChange);
   },
   render: function () {
     var _this = this;
@@ -154,11 +199,15 @@ var conversationGroup = React.createClass({
             <panelFooter isActive={exercise.chosenCharacter.name === answer.character.name}/>
           </div>
         </div>
+        <div className="exercise__actions">
+          <button className="btn btn--primary" onClick={this.nextScript}>Continue</button>
+        </div>
       </div>
     );
   }
 });
 
+// Stage 2
 var conversationStage = React.createClass({
   getInitialState: function () {
     return {
@@ -252,14 +301,12 @@ var RecordingExercise = React.createClass({
     ExerciseStore.addChangeListener(this._onChange);
     AudioStore.addChangeListener(this._onChange);
     RecordingStore.addChangeListener(this._onChange);
-    AutoPlayStore.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function() {
     ExerciseStore.removeChangeListener(this._onChange);
     AudioStore.removeChangeListener(this._onChange);
     RecordingStore.removeChangeListener(this._onChange);
-    AutoPlayStore.removeChangeListener(this._onChange);
   }
 });
 

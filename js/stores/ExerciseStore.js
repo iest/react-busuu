@@ -47,6 +47,17 @@ function create(exe) {
   }
 }
 
+function nextStep(id) {
+  var exercise = _exercises[id];
+
+  if (exercise.script.length -1 > exercise.activeScript) {
+    // If there are more scripts to handle
+    exercise.activeScript++;
+  } else {
+    // We're at the last one, do something else
+  }
+}
+
 function setCharacter(id, char) {
   _exercises[id].chosenCharacter = char;
   _exercises[id].nextStage();
@@ -145,6 +156,10 @@ AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {
+    case ExerciseConstants.EXERCISE_STEP:
+      nextStep(action.id);
+      ExerciseStore.emitChange();
+      break;
     case ExerciseConstants.CHOSE_CHARACTER:
       setCharacter(action.id, action.character);
       ExerciseStore.emitChange();

@@ -9,6 +9,12 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var ExerciseConstants = require('../constants/Constants').Exercise;
 
 module.exports = {
+  nextStep: function(id) {
+    AppDispatcher.handleViewAction({
+      actionType: ExerciseConstants.EXERCISE_STEP,
+      id: id
+    });
+  },
   setCharacter: function(id, character) {
     AppDispatcher.handleViewAction({
       actionType: ExerciseConstants.CHOSE_CHARACTER,

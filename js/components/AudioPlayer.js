@@ -48,6 +48,7 @@ var AudioPlayer = React.createClass({
     }
   },
   play: function() {
+    var _this = this;
     AudioActions.play(this.props.src);
   },
   stop: function() {
