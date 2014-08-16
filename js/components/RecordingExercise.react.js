@@ -106,6 +106,7 @@ var conversationGroup = React.createClass({
     var _this = this;
     setTimeout(function() {
       AudioActions.play(_this._waitingAudios[0]);
+      ExerciseActions.startAutoPlay(_this.props.exercise.id);
     }, 0);
   },
   _audioChange: function() {
@@ -126,6 +127,8 @@ var conversationGroup = React.createClass({
 
       if (this._waitingAudios.length) {
         this._nextAudio();
+      } else {
+        ExerciseActions.stopAutoPlay(this.props.exercise.id);
       }
       return;
     }
@@ -178,7 +181,7 @@ var conversationGroup = React.createClass({
               </div>
               <p>{question[LearningLang].value}</p>
             </div>
-            <panelFooter isActive={exercise.chosenCharacter.name === question.character.name}/>
+            <panelFooter isActive={exercise.chosenCharacter.name === question.character.name && !exercise.isAutoPlaying}/>
           </div>
         </div>
 
@@ -196,7 +199,7 @@ var conversationGroup = React.createClass({
               </div>
               <p>{answer[LearningLang].value}</p>
             </div>
-            <panelFooter isActive={exercise.chosenCharacter.name === answer.character.name}/>
+            <panelFooter isActive={exercise.chosenCharacter.name === answer.character.name && !exercise.isAutoPlaying}/>
           </div>
         </div>
         <div className="exercise__actions">

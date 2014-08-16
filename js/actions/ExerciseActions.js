@@ -9,6 +9,18 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var ExerciseConstants = require('../constants/Constants').Exercise;
 
 module.exports = {
+  startAutoPlay: function(id) {
+    AppDispatcher.handleViewAction({
+      actionType: ExerciseConstants.EXERCISE_START_AUTO_PLAY,
+      id: id
+    });
+  },
+  stopAutoPlay: function(id) {
+    AppDispatcher.handleViewAction({
+      actionType: ExerciseConstants.EXERCISE_STOP_AUTO_PLAY,
+      id: id
+    });
+  },
   nextStep: function(id) {
     AppDispatcher.handleViewAction({
       actionType: ExerciseConstants.EXERCISE_STEP,

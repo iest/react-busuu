@@ -97,6 +97,13 @@ function findExerciseByToken(token) {
   }
 }
 
+function setAutoPlay(id) {
+  _exercises[id].isAutoPlaying = true;
+}
+function unSetAutoPlay(id) {
+  _exercises[id].isAutoPlaying = false;
+}
+
 function setPlaying(token) {
   var exercise = findExerciseByToken(token);
 
@@ -156,30 +163,47 @@ AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {
+
+    case ExerciseConstants.EXERCISE_START_AUTO_PLAY:
+      setAutoPlay(action.id);
+      break;
+
+    case ExerciseConstants.EXERCISE_STOP_AUTO_PLAY:
+      unSetAutoPlay(action.id);
+      break;
+
     case ExerciseConstants.EXERCISE_STEP:
       nextStep(action.id);
       ExerciseStore.emitChange();
       break;
+
     case ExerciseConstants.CHOSE_CHARACTER:
       setCharacter(action.id, action.character);
       ExerciseStore.emitChange();
       break;
+
     case ExerciseConstants.EXERCISE_PASS:
       setPass(action.id);
       ExerciseStore.emitChange();
       break;
+
     case ExerciseConstants.EXERCISE_FAIL:
       setFail(action.id);
       ExerciseStore.emitChange();
       break;
+
     case AudioConstants.AUDIO_START:
+      AppDispatcher.waitFor([AudioStore.dispatchToken]);
       setPlaying(action.token);
       ExerciseStore.emitChange();
       break;
+
     case AudioConstants.AUDIO_STOP:
+      AppDispatcher.waitFor([AudioStore.dispatchToken]);
       cancelPlaying(action.token);
       ExerciseStore.emitChange();
       break;
+
     default:
       // No change
       break;
