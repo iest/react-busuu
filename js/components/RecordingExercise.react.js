@@ -19,8 +19,8 @@ var RecordingStore = require('../stores/RecordingStore');
 var Recorder = require('./Recorder');
 var AudioPlayer = require('./AudioPlayer');
 
-var ExerciseActions = require('../actions/ExerciseActions');
-var AudioActions = require('../actions/AudioActions');
+var ExerciseActionCreators = require('../actions/ExerciseActionCreators');
+var AudioActionCreators = require('../actions/AudioActionCreators');
 
 var AudioConstants = require('../constants/Constants').Audio;
 
@@ -57,7 +57,7 @@ var characterButton = React.createClass({
 var characterSelectionStage = React.createClass({
 
   _setSelectedCharacter: function(character) {
-    ExerciseActions.setCharacter(this.props.exercise.id, character);
+    ExerciseActionCreators.setCharacter(this.props.exercise.id, character);
   },
 
   render: function() {
@@ -104,10 +104,8 @@ var conversationGroup = React.createClass({
   _finishedAudios: [],
   _nextAudio: function() {
     var _this = this;
-    setTimeout(function() {
-      AudioActions.play(_this._waitingAudios[0]);
-      ExerciseActions.startAutoPlay(_this.props.exercise.id);
-    }, 0);
+    AudioActionCreators.play(_this._waitingAudios[0]);
+    // ExerciseActionCreators.startAutoPlay(_this.props.exercise.id);
   },
   _audioChange: function() {
     var allAudio = AudioStore.getAll();
@@ -128,7 +126,7 @@ var conversationGroup = React.createClass({
       if (this._waitingAudios.length) {
         this._nextAudio();
       } else {
-        ExerciseActions.stopAutoPlay(this.props.exercise.id);
+        ExerciseActionCreators.stopAutoPlay(this.props.exercise.id);
       }
       return;
     }
@@ -139,7 +137,7 @@ var conversationGroup = React.createClass({
   },
 
   nextScript: function() {
-    ExerciseActions.nextStep(this.props.exercise.id);
+    ExerciseActionCreators.nextStep(this.props.exercise.id);
   },
 
   componentDidMount: function() {
@@ -291,10 +289,10 @@ var RecordingExercise = React.createClass({
   },
 
   _pass: function() {
-   ExerciseActions.pass(this.props.exerciseID);
+   ExerciseActionCreators.pass(this.props.exerciseID);
   },
   _fail: function() {
-    ExerciseActions.fail(this.props.exerciseID);
+    ExerciseActionCreators.fail(this.props.exerciseID);
   },
 
   getInitialState: function() {

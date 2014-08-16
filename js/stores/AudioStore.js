@@ -104,16 +104,11 @@ AudioStore.dispatchToken = AppDispatcher.register(function(payload) {
       AudioStore.emitChange();
       break;
 
-    case AudioConstants.AUDIO_START_SEQUENCE:
-
-      
-
-      break;
-
     default:
       // No change
       break;
   }
+
 });
 
 module.exports = AudioStore;

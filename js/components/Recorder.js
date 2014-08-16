@@ -4,7 +4,7 @@
 
 var React = require('react');
 
-var RecordingActions = require('../actions/RecordingActions');
+var RecordingActionCreators = require('../actions/RecordingActionCreators');
 var RecordingConstants = require('../constants/Constants').Recording;
 var RecordingStore = require('../stores/RecordingStore');
 
@@ -35,16 +35,16 @@ var RecorderComponent = React.createClass({
     // Have to send action from flashRecorder callback
     Recorder.record({
       start: function() {
-        RecordingActions.startRecording(_this.id);
+        RecordingActionCreators.startRecording(_this.id);
       },
       cancel: function() {
-        RecordingActions.stopRecording(_this.id);
+        RecordingActionCreators.stopRecording(_this.id);
       }
     });
   },
   stopRecording: function() {
     Recorder.stop();
-    RecordingActions.stop(this.id);
+    RecordingActionCreators.stop(this.id);
   },
   togglePlay: function() {
     if (this.state.isPlaying === RecordingConstants.RECORD_PLAYING) {
@@ -64,7 +64,7 @@ var RecorderComponent = React.createClass({
     });
   },
   stop: function() {
-    RecordingActions.stop(this.id);
+    RecordingActionCreators.stop(this.id);
   },
   render: function () {
 

@@ -1,7 +1,7 @@
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var RecordingConstants = require('../constants/Constants').Recording;
 
-module.exports = {
+var RecordingActionCreators = {
   startRecording: function(id) {
     AppDispatcher.handleViewAction({
       actionType: RecordingConstants.RECORD_START,
@@ -33,3 +33,5 @@ module.exports = {
     });
   }
 };
+
+module.exports = RecordingActionCreators;

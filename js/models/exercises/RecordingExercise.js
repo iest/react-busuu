@@ -83,7 +83,7 @@ var RecordingExercise = Exercise.extend({
    * If we're autoplaying within this exercise
    * @type {Boolean}
    */
-  isAutoPlaying: false,
+  isAutoPlaying: true,
 
   /**
    * The src of the currently playing audio

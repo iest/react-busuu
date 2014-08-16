@@ -1,30 +1,16 @@
-/**
- * ExerciseStore
- *
- * Stores and manipulates Exercises.
- * - Fetches a given exercise from the backend (dummy response for now)
- * - Transforms it into a sensible model
- * - Stores it
- *
- * This should be split out into a RecordingExerciseStore in a real
- * implementation.
- */
-
-
 var merge = require('react/lib/merge');
 var request = require('superagent');
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var Store = require('./Store');
-
 var Constants = require('../constants/Constants');
 var AudioConstants = Constants.Audio;
 var ExerciseConstants = Constants.Exercise;
 var ExerciseTypes = Constants.ExerciseTypes;
 
-var AudioStore = require('./AudioStore');
-
 var RecordingExercise = require('../models/exercises/RecordingExercise');
+
+var AudioStore = require('./AudioStore');
 
 var LearningLang = 'fr';
 var SpeakingLang = 'enc';
@@ -159,7 +145,7 @@ var ExerciseStore = merge(Store, {
 
 // Register with the Dispatcher, emit a change if something
 // changed that we care about
-AppDispatcher.register(function(payload) {
+ExerciseStore.dispatchToken = AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {
@@ -209,7 +195,6 @@ AppDispatcher.register(function(payload) {
       break;
   }
 
-  return true;
 });
 
 

@@ -8,7 +8,7 @@
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var ExerciseConstants = require('../constants/Constants').Exercise;
 
-module.exports = {
+var ExerciseActionCreators =  {
   startAutoPlay: function(id) {
     AppDispatcher.handleViewAction({
       actionType: ExerciseConstants.EXERCISE_START_AUTO_PLAY,
@@ -47,3 +47,5 @@ module.exports = {
     });
   }
 };
+
+module.exports = ExerciseActionCreators;

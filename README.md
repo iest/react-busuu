@@ -4,6 +4,8 @@
 
 ## TODO
 
+- A store can fetch data from another store
+
 - [ ] Should move AutoPlayStore into ExerciseStore or something?
 - [ ] Write up why this is cool
 - [x] Finish exerciseStore setPlaying
