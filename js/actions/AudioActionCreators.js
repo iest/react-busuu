@@ -4,6 +4,12 @@ var AudioConstants = Constants.Audio;
 var AutoPlayConstants = Constants.AutoPlay;
 
 var AudioActionCreators = {
+  startSequence: function(tokens) {
+    AppDispatcher.handleViewAction({
+      actionType: AudioConstants.AUDIO_START_SEQUENCE,
+      tokens: tokens
+    });
+  },
   setDuration: function(token, duration) {
     AppDispatcher.handleViewAction({
       actionType: AudioConstants.SET_DURATION,

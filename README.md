@@ -4,15 +4,8 @@
 
 ## TODO
 
-- A store can fetch data from another store
-
-- [ ] Should move AutoPlayStore into ExerciseStore or something?
-- [ ] Write up why this is cool
-- [x] Finish exerciseStore setPlaying
-- [x] Add recorder (and flash...)
-- [x] Copy over Dispatcher from Chat Flux example
-- [x] Create Exercise actions to handle everything that happens in an exercise
-- [x] Change all `setState` calls inside `RecordingExercise.react` to be handled by the Dispatcher and registered callbacks (flux)
+- [ ] Store state for if they've completed the current script step (made a recording)
+- [ ] Get preview stage working
 
 
 # Notes
