@@ -4,6 +4,9 @@
 
 ## TODO
 
+Keeping track of recording:
+- Set state of specific script in exercise to done
+
 - [ ] Store state for if they've completed the current script step (made a recording)
 - [ ] Get preview stage working
 

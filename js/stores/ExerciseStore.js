@@ -5,12 +5,14 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var Store = require('./Store');
 var Constants = require('../constants/Constants');
 var AudioConstants = Constants.Audio;
+var RecordingConstants = Constants.Recording;
 var ExerciseConstants = Constants.Exercise;
 var ExerciseTypes = Constants.ExerciseTypes;
 
 var RecordingExercise = require('../models/exercises/RecordingExercise');
 
 var AudioStore = require('./AudioStore');
+var RecordingStore = require('./RecordingStore');
 
 var LearningLang = 'fr';
 var SpeakingLang = 'enc';
@@ -209,6 +211,5 @@ ExerciseStore.dispatchToken = AppDispatcher.register(function(payload) {
   }
 
 });
-
 
 module.exports = ExerciseStore;

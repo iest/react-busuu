@@ -65,6 +65,9 @@ function destroy(id) {
 var RecordingStore = merge(Store, {
   get: function(id) {
     return _recordings[id];
+  },
+  getAll: function() {
+    return _recordings;
   }
 });
 

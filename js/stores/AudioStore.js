@@ -48,6 +48,15 @@ function stopSingle(token) {
   _tokens[token].isPlaying = AudioConstants.AUDIO_STOPPED;
 }
 
+function _destroy(token) {
+  if (_tokens[token]) {
+    delete _tokens[token];
+    return true;
+  } else {
+    return false;
+  }
+}
+
 
 
 var _sequence = [];
@@ -93,14 +102,6 @@ var AudioStore = merge(Store, {
       }
     }
     return playing ? playing : null;
-  },
-  destroy: function(token) {
-    if (_tokens[token]) {
-      delete _tokens[token];
-      return true;
-    } else {
-      return false;
-    }
   }
 });
 
@@ -133,10 +134,10 @@ AudioStore.dispatchToken = AppDispatcher.register(function(payload) {
       handleIfSequence();
       AudioStore.emitChange();
       break;
-    case AudioConstants.AUDIO_DESTROY:
-      _destroy(action.token);
-      AudioStore.emitChange();
-      break;
+    // case AudioConstants.AUDIO_DESTROY:
+    //   _destroy(action.token);
+    //   AudioStore.emitChange();
+    //   break;
 
     default:
       // No change

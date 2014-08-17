@@ -99,6 +99,9 @@ var panelFooter = React.createClass({
 
 // Stage 2 Part
 var conversationGroup = React.createClass({
+  propTypes: {
+
+  },
   nextScript: function() {
     ExerciseActionCreators.nextStep(this.props.exercise.id);
   },
@@ -174,6 +177,9 @@ var conversationGroup = React.createClass({
 
 // Stage 2
 var conversationStage = React.createClass({
+  propTypes: {
+    exercise: ReactPropTypes.object.isRequired
+  },
   getInitialState: function () {
     return {
       hasRecorded: false,
@@ -188,7 +194,23 @@ var conversationStage = React.createClass({
       var activeScriptIndex = this.props.exercise.activeScript;
       var activeScript = this.props.exercise.script[activeScriptIndex];
 
-      return(<conversationGroup script={activeScript} exercise={exercise} />);
+      var groups = this.props.exercise.script.map(function(script) {
+
+        var isActive = (script === activeScript);
+        if (isActive) {
+          return (
+            <conversationGroup key={script.question[LearningLang].value} script={script} exercise={exercise} />
+          );
+        } else {
+          return null;
+        }
+      });
+
+      return (
+        <div>
+          {groups}
+        </div>
+      );
     } else {
       return null;
     }
