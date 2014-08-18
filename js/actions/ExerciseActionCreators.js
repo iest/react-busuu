@@ -9,6 +9,12 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var ExerciseConstants = require('../constants/Constants').Exercise;
 
 var ExerciseActionCreators =  {
+  loaded: function(id) {
+    AppDispatcher.handleViewAction({
+      actionType: ExerciseConstants.EXERCISE_LOAD,
+      id: id
+    });
+  },
   nextStep: function(id) {
     AppDispatcher.handleViewAction({
       actionType: ExerciseConstants.EXERCISE_STEP,

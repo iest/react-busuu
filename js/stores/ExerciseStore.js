@@ -1,3 +1,7 @@
+/**
+ * Should really have a scriptStore to handle exercises's inner script steps.
+ */
+
 var merge = require('react/lib/merge');
 var request = require('superagent');
 
@@ -18,8 +22,13 @@ var LearningLang = 'fr';
 var SpeakingLang = 'enc';
 
 var _exercises = {};
+var _currentExercise = null;
 
 // API methods
+
+function setCurrent(id) {
+  _currentExercise = id;
+}
 
 function create(exe) {
   switch (exe.type) {
@@ -40,6 +49,7 @@ function nextStep(id) {
 
   if (exercise.script.length -1 > exercise.activeScript) {
     // If there are more scripts to handle
+    exercise.isAutoPlaying = true;
     exercise.activeScript++;
   } else {
     // We're at the last one, do something else
@@ -85,6 +95,20 @@ function findExerciseByToken(token) {
   }
 }
 
+function findExerciseByRecordingId(recordingId) {
+  var foundExercise = null;
+  for (var k in _exercises) {
+    var exercise = _exercises[k];
+    for (var i = 0; i < exercise.script.length; i++) {
+      if (exercise.script[i].recordingId === recordingId) {
+        foundExercise = exercise;
+        break;
+      }
+    }
+  }
+  return foundExercise;
+}
+
 function checkAutoPlay(tok) {
   var token = AudioStore.getPlaying();
 
@@ -109,6 +133,16 @@ function setPlaying(token) {
   } else {
     throw "failed to set currentPlayingAudio for token " + token;
   }
+}
+
+function setScriptRecording(recorderId) {
+  var exercise = _exercises[_currentExercise];
+  exercise.script[exercise.activeScript].recordingId = recorderId;
+}
+
+function setScriptDone(recorderId) {
+  var exercise = findExerciseByRecordingId(recorderId);
+  exercise.script[exercise.activeScript].isComplete = true;
 }
 
 function cancelPlaying(token) {
@@ -172,6 +206,12 @@ ExerciseStore.dispatchToken = AppDispatcher.register(function(payload) {
       // ExerciseStore.emitChange();
       // break;
 
+    case ExerciseConstants.EXERCISE_LOAD:
+      setCurrent(action.id);
+      ExerciseStore.emitChange();
+      break;
+    
+
     case ExerciseConstants.EXERCISE_STEP:
       nextStep(action.id);
       ExerciseStore.emitChange();
@@ -202,6 +242,18 @@ ExerciseStore.dispatchToken = AppDispatcher.register(function(payload) {
       AppDispatcher.waitFor([AudioStore.dispatchToken]);
       cancelPlaying(action.token);
       checkAutoPlay(action.token);
+      ExerciseStore.emitChange();
+      break;
+
+    case RecordingConstants.RECORD_START:
+      AppDispatcher.waitFor([RecordingStore.dispatchToken]);
+      setScriptRecording(action.id);
+      ExerciseStore.emitChange();
+      break;
+
+    case RecordingConstants.RECORD_END:
+      AppDispatcher.waitFor([RecordingStore.dispatchToken]);
+      setScriptDone(action.id);
       ExerciseStore.emitChange();
       break;
 

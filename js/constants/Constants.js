@@ -22,6 +22,7 @@ module.exports = {
   Exercise: keyMirror({
 
     // Actions
+    EXERCISE_LOAD: null,
     CHOSE_CHARACTER: null,
     EXERCISE_STEP: null,
     EXERCISE_PASS: null,

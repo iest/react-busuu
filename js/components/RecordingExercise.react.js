@@ -164,11 +164,11 @@ var conversationGroup = React.createClass({
               </div>
               <p>{answer[LearningLang].value}</p>
             </div>
-            <panelFooter id="answer"  isActive={exercise.chosenCharacter.name === answer.character.name && !exercise.isAutoPlaying}/>
+            <panelFooter id="answer" isActive={exercise.chosenCharacter.name === answer.character.name && !exercise.isAutoPlaying}/>
           </div>
         </div>
         <div className="exercise__actions">
-          <button className="btn btn--primary" onClick={this.nextScript}>Continue</button>
+          <button className="btn btn--primary" disabled={!this.props.script.isComplete} onClick={this.nextScript}>Continue</button>
         </div>
       </div>
     );
@@ -179,13 +179,6 @@ var conversationGroup = React.createClass({
 var conversationStage = React.createClass({
   propTypes: {
     exercise: ReactPropTypes.object.isRequired
-  },
-  getInitialState: function () {
-    return {
-      hasRecorded: false,
-      isRecording: false,
-      currentPlayingAudio: null
-    };
   },
   render: function() {
     if (this.props.isActive) {
@@ -288,6 +281,7 @@ var RecordingExercise = React.createClass({
     ExerciseStore.addChangeListener(this._onChange);
     AudioStore.addChangeListener(this._onChange);
     RecordingStore.addChangeListener(this._onChange);
+    ExerciseActionCreators.loaded(this.props.exerciseID);
   },
 
   componentWillUnmount: function() {

@@ -71,7 +71,7 @@ var RecordingStore = merge(Store, {
   }
 });
 
-AppDispatcher.register(function(payload) {
+RecordingStore.dispatchToken = AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {
