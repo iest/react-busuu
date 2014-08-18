@@ -7,7 +7,7 @@ var ReactPropTypes = React.PropTypes;
 var Promise = require('es6-promise').Promise;
 
 var AudioStore = require('../stores/AudioStore');
-var AudioActions = require('../actions/AudioActions');
+var AudioActionCreators = require('../actions/AudioActionCreators');
 var AudioConstants = require('../constants/Constants').Audio;
 
 function getStateFromStore(token) {
@@ -49,15 +49,15 @@ var AudioPlayer = React.createClass({
   },
   play: function() {
     var _this = this;
-    AudioActions.play(this.props.src);
+    AudioActionCreators.play(this.props.src);
   },
   stop: function() {
-    AudioActions.stop(this.props.src);
+    AudioActionCreators.stop(this.props.src);
   },
 
   handleLoad: function() {
     var duration = this.refs.audioObject.getDOMNode().duration;
-    AudioActions.setDuration(this.props.src, duration);
+    AudioActionCreators.setDuration(this.props.src, duration);
   },
 
   render: function() {
@@ -85,7 +85,7 @@ var AudioPlayer = React.createClass({
     audioElement.removeEventListener('ended', this.stop);
     audioElement.removeEventListener('loadeddata', this.handleLoad);
 
-    AudioActions.destroy(this.props.src);
+    AudioActionCreators.destroy(this.props.src);
     AudioStore.removeChangeListener(this._onChange);
   },
   _onChange: function() {

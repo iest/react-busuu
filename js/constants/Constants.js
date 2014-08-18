@@ -22,10 +22,9 @@ module.exports = {
   Exercise: keyMirror({
 
     // Actions
+    EXERCISE_LOAD: null,
     CHOSE_CHARACTER: null,
     EXERCISE_STEP: null,
-    EXERCISE_START_AUTO_PLAY: null,
-    EXERCISE_STOP_AUTO_PLAY: null,
     EXERCISE_PASS: null,
     EXERCISE_FAIL: null,
     EXERCISE_COMPLETE: null
@@ -41,6 +40,8 @@ module.exports = {
     SET_DURATION: null,
     AUDIO_START: null,
     AUDIO_STOP: null,
+    AUDIO_START_SEQUENCE: null,
+    AUDIO_STOP_SEQUENCE: null,
     AUDIO_DESTROY: null
   }),
 

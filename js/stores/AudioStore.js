@@ -30,7 +30,7 @@ function setDuration(token, seconds) {
   _tokens[token].duration = seconds * 1000;
 }
 
-function play(token) {
+function playSingle(token) {
   if (!_tokens[token]) {
     create(token);
   }
@@ -44,9 +44,40 @@ function play(token) {
   _tokens[token].isPlaying = AudioConstants.AUDIO_PLAYING;
 }
 
-function stop(token) {
+function stopSingle(token) {
   _tokens[token].isPlaying = AudioConstants.AUDIO_STOPPED;
 }
+
+function _destroy(token) {
+  if (_tokens[token]) {
+    delete _tokens[token];
+    return true;
+  } else {
+    return false;
+  }
+}
+
+
+
+var _sequence = [];
+function _queueNext() {
+  playSingle(_sequence.shift());
+}
+
+function playSequence(tokens) {
+  _sequence = tokens;
+  _queueNext();
+}
+
+function handleIfSequence() {
+   // called when START or STOP actions come in
+
+   // If we have tokens still to play and we're not playing anything
+   if (_sequence.length && !AudioStore.getPlaying()) {
+    _queueNext();
+   }
+}
+
 
 var AudioStore = merge(Store, {
   get: function(token) {
@@ -70,15 +101,7 @@ var AudioStore = merge(Store, {
         break;
       }
     }
-    return playing;
-  },
-  destroy: function(token) {
-    if (_tokens[token]) {
-      delete _tokens[token];
-      return true;
-    } else {
-      return false;
-    }
+    return playing ? playing : null;
   }
 });
 
@@ -87,33 +110,40 @@ AudioStore.dispatchToken = AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {
+
+    case AudioConstants.AUDIO_START_SEQUENCE:
+      playSequence(action.tokens);
+      AudioStore.emitChange();
+      break;
+
+    case AudioConstants.AUDIO_STOP_SEQUENCE:
+      // halt
+      break;
+
     case AudioConstants.SET_DURATION:
       setDuration(action.token, action.duration);
       AudioStore.emitChange();
       break;
     case AudioConstants.AUDIO_START:
-      play(action.token);
+      playSingle(action.token);
+      handleIfSequence();
       AudioStore.emitChange();
       break;
     case AudioConstants.AUDIO_STOP:
-      stop(action.token);
+      stopSingle(action.token);
+      handleIfSequence();
       AudioStore.emitChange();
       break;
-    case AudioConstants.AUDIO_DESTROY:
-      _destroy(action.token);
-      AudioStore.emitChange();
-      break;
-
-    case AudioConstants.AUDIO_START_SEQUENCE:
-
-      
-
-      break;
+    // case AudioConstants.AUDIO_DESTROY:
+    //   _destroy(action.token);
+    //   AudioStore.emitChange();
+    //   break;
 
     default:
       // No change
       break;
   }
+
 });
 
 module.exports = AudioStore;

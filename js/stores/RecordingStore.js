@@ -65,10 +65,13 @@ function destroy(id) {
 var RecordingStore = merge(Store, {
   get: function(id) {
     return _recordings[id];
+  },
+  getAll: function() {
+    return _recordings;
   }
 });
 
-AppDispatcher.register(function(payload) {
+RecordingStore.dispatchToken = AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {

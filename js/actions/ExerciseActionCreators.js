@@ -8,16 +8,10 @@
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var ExerciseConstants = require('../constants/Constants').Exercise;
 
-module.exports = {
-  startAutoPlay: function(id) {
+var ExerciseActionCreators =  {
+  loaded: function(id) {
     AppDispatcher.handleViewAction({
-      actionType: ExerciseConstants.EXERCISE_START_AUTO_PLAY,
-      id: id
-    });
-  },
-  stopAutoPlay: function(id) {
-    AppDispatcher.handleViewAction({
-      actionType: ExerciseConstants.EXERCISE_STOP_AUTO_PLAY,
+      actionType: ExerciseConstants.EXERCISE_LOAD,
       id: id
     });
   },
@@ -47,3 +41,5 @@ module.exports = {
     });
   }
 };
+
+module.exports = ExerciseActionCreators;

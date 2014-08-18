@@ -1,37 +1,34 @@
 /**
- * ExerciseStore
- *
- * Stores and manipulates Exercises.
- * - Fetches a given exercise from the backend (dummy response for now)
- * - Transforms it into a sensible model
- * - Stores it
- *
- * This should be split out into a RecordingExerciseStore in a real
- * implementation.
+ * Should really have a scriptStore to handle exercises's inner script steps.
  */
-
 
 var merge = require('react/lib/merge');
 var request = require('superagent');
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var Store = require('./Store');
-
 var Constants = require('../constants/Constants');
 var AudioConstants = Constants.Audio;
+var RecordingConstants = Constants.Recording;
 var ExerciseConstants = Constants.Exercise;
 var ExerciseTypes = Constants.ExerciseTypes;
 
-var AudioStore = require('./AudioStore');
-
 var RecordingExercise = require('../models/exercises/RecordingExercise');
+
+var AudioStore = require('./AudioStore');
+var RecordingStore = require('./RecordingStore');
 
 var LearningLang = 'fr';
 var SpeakingLang = 'enc';
 
 var _exercises = {};
+var _currentExercise = null;
 
 // API methods
+
+function setCurrent(id) {
+  _currentExercise = id;
+}
 
 function create(exe) {
   switch (exe.type) {
@@ -52,9 +49,11 @@ function nextStep(id) {
 
   if (exercise.script.length -1 > exercise.activeScript) {
     // If there are more scripts to handle
+    exercise.isAutoPlaying = true;
     exercise.activeScript++;
   } else {
     // We're at the last one, do something else
+    exercise.nextStage();
   }
 }
 
@@ -97,11 +96,34 @@ function findExerciseByToken(token) {
   }
 }
 
-function setAutoPlay(id) {
-  _exercises[id].isAutoPlaying = true;
+function findExerciseByRecordingId(recordingId) {
+  var foundExercise = null;
+  for (var k in _exercises) {
+    var exercise = _exercises[k];
+    for (var i = 0; i < exercise.script.length; i++) {
+      if (exercise.script[i].recordingId === recordingId) {
+        foundExercise = exercise;
+        break;
+      }
+    }
+  }
+  return foundExercise;
 }
-function unSetAutoPlay(id) {
-  _exercises[id].isAutoPlaying = false;
+
+function checkAutoPlay(tok) {
+  var token = AudioStore.getPlaying();
+
+  if (token) {
+    var exercise = findExerciseByToken(token);
+    _exercises[exercise.id].isAutoPlaying = true;
+    _exercises[exercise.id].currentPlayingAudio = token;
+  } else {
+    unSetAutoPlay(tok);
+  }
+}
+function unSetAutoPlay(token) {
+  var exercise = findExerciseByToken(token);  
+  _exercises[exercise.id].isAutoPlaying = false;
 }
 
 function setPlaying(token) {
@@ -112,6 +134,16 @@ function setPlaying(token) {
   } else {
     throw "failed to set currentPlayingAudio for token " + token;
   }
+}
+
+function setScriptRecording(recorderId) {
+  var exercise = _exercises[_currentExercise];
+  exercise.script[exercise.activeScript].recordingId = recorderId;
+}
+
+function setScriptDone(recorderId) {
+  var exercise = findExerciseByRecordingId(recorderId);
+  exercise.script[exercise.activeScript].isComplete = true;
 }
 
 function cancelPlaying(token) {
@@ -159,18 +191,27 @@ var ExerciseStore = merge(Store, {
 
 // Register with the Dispatcher, emit a change if something
 // changed that we care about
-AppDispatcher.register(function(payload) {
+ExerciseStore.dispatchToken = AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {
 
-    case ExerciseConstants.EXERCISE_START_AUTO_PLAY:
-      setAutoPlay(action.id);
+    case AudioConstants.AUDIO_START_SEQUENCE:
+      AppDispatcher.waitFor([AudioStore.dispatchToken]);
+      checkAutoPlay();
+      ExerciseStore.emitChange();
       break;
 
-    case ExerciseConstants.EXERCISE_STOP_AUTO_PLAY:
-      unSetAutoPlay(action.id);
+    // case AudioConstants.AUDIO_STOP_SEQUENCE:
+      // unSetAutoPlay(action.id);
+      // ExerciseStore.emitChange();
+      // break;
+
+    case ExerciseConstants.EXERCISE_LOAD:
+      setCurrent(action.id);
+      ExerciseStore.emitChange();
       break;
+    
 
     case ExerciseConstants.EXERCISE_STEP:
       nextStep(action.id);
@@ -201,6 +242,19 @@ AppDispatcher.register(function(payload) {
     case AudioConstants.AUDIO_STOP:
       AppDispatcher.waitFor([AudioStore.dispatchToken]);
       cancelPlaying(action.token);
+      checkAutoPlay(action.token);
+      ExerciseStore.emitChange();
+      break;
+
+    case RecordingConstants.RECORD_START:
+      AppDispatcher.waitFor([RecordingStore.dispatchToken]);
+      setScriptRecording(action.id);
+      ExerciseStore.emitChange();
+      break;
+
+    case RecordingConstants.RECORD_END:
+      AppDispatcher.waitFor([RecordingStore.dispatchToken]);
+      setScriptDone(action.id);
       ExerciseStore.emitChange();
       break;
 
@@ -209,8 +263,6 @@ AppDispatcher.register(function(payload) {
       break;
   }
 
-  return true;
 });
-
 
 module.exports = ExerciseStore;

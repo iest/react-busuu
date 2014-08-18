@@ -1,10 +1,16 @@
 /**
+ * TODO: make this into a singleton
+ *   - Move flash interface stuff out into global namespace
+ *   - Make distinction between recordings vs recorders
+ * 
+ * The current state is fine for the demo but not for normal use.
+ * 
  * @jsx React.DOM
  */
 
 var React = require('react');
 
-var RecordingActions = require('../actions/RecordingActions');
+var RecordingActionCreators = require('../actions/RecordingActionCreators');
 var RecordingConstants = require('../constants/Constants').Recording;
 var RecordingStore = require('../stores/RecordingStore');
 
@@ -14,6 +20,7 @@ function getStateFromStore(id) {
 
 var RecorderComponent = React.createClass({
   id: uniqueId('recording'),
+  _willStopInternally: false,
   getInitialState: function() {
     var _this = this;
     return {
@@ -35,16 +42,16 @@ var RecorderComponent = React.createClass({
     // Have to send action from flashRecorder callback
     Recorder.record({
       start: function() {
-        RecordingActions.startRecording(_this.id);
+        RecordingActionCreators.startRecording(_this.id);
       },
       cancel: function() {
-        RecordingActions.stopRecording(_this.id);
+        RecordingActionCreators.stopRecording(_this.id);
       }
     });
   },
   stopRecording: function() {
     Recorder.stop();
-    RecordingActions.stop(this.id);
+    RecordingActionCreators.stopRecording(this.id);
   },
   togglePlay: function() {
     if (this.state.isPlaying === RecordingConstants.RECORD_PLAYING) {
@@ -54,23 +61,15 @@ var RecorderComponent = React.createClass({
     }
   },
   play: function() {
-    var _this = this;
-
-    Recorder.play({
-      progress: function() {
-      },
-      finish: function() {
-      }
-    });
+    RecordingActionCreators.play(this.id);
   },
   stop: function() {
-    RecordingActions.stop(this.id);
+    RecordingActionCreators.stop(this.id);
   },
   render: function () {
 
     var isRecording = this.state.isRecording === RecordingConstants.RECORD_RECORDING;
     var isPlaying = this.state.isPlaying === RecordingConstants.RECORD_PLAYING;
-
     return (
       <span>
         <button className="btn btn--icon btn--secondary mrm" onClick={this.toggleRecord}>
@@ -87,9 +86,7 @@ var RecorderComponent = React.createClass({
 
     Recorder.initialize({
       swfSrc: "/recorder.swf",
-      flashContainer: document.getElementById("recorderFlashContainer"),
-      initialized: function() {
-      }
+      flashContainer: document.getElementById("recorderFlashContainer")
     });
 
     RecordingStore.addChangeListener(this._onChange);
@@ -98,33 +95,57 @@ var RecorderComponent = React.createClass({
     RecordingStore.removeChangeListener(this._onChange);
   },
   _onChange: function() {
+    _this = this;
+
     var currentState = getStateFromStore(this.id);
 
     if (!currentState) {
       return;
     }
 
+    // Set the state, then figure out what we need to do with window.Recorder as
+    // as result of those state changes
     this.setState(currentState, function() {
-      Recorder.setActiveBuffer(currentState.index);
 
-      if (currentState.isRecording === RecordingConstants.RECORD_RECORDING) {
-        Recorder.record();
+      var activeIndex = currentState.bufferIndex;
+
+      var isNowRecording = currentState.isRecording ===
+        RecordingConstants.RECORD_RECORDING;
+
+      var isNowPlaying = currentState.isPlaying ===
+        RecordingConstants.RECORD_PLAYING;
+
+      if (isNowRecording && isNowPlaying) {
+        throw new Error('Cant record and play at the same time!');
+      }
+
+      // If we should record
+      if (isNowRecording && !isNowPlaying) {
+        window.Recorder.setActiveBuffer(activeIndex);
+        window.Recorder.record();
         return;
       }
-      if (currentState.isRecording === RecordingConstants.RECORD_NOT_RECORDING) {
-        Recorder.stop();
+
+      // If we're done recording or playing
+      if (!isNowRecording && !isNowPlaying && _this._willStopInternally) {
+        _this._willStopInternally = false;
+        window.Recorder.stop();
         return;
       }
-      if (currentState.isRecording === RecordingConstants.RECORD_PLAYING) {
-        Recorder.play();
+
+      // If we should play
+      if (!isNowRecording && isNowPlaying && !_this._willStopInternally) {
+        _this._willStopInternally = true;
+        window.Recorder.setActiveBuffer(activeIndex);
+        window.Recorder.play({
+          finished: function() {
+            RecordingActionCreators.stop(_this.id);
+          }
+        });
         return;
       }
-      if (currentState.isRecording === RecordingConstants.RECORD_STOPPED) {
-        Recorder.stop();
-        return;
-      }
+
     });
-
   }
 });
 
@@ -316,6 +337,6 @@ var Recorder = {
       .replace(/%25/g, "%");
   }
 };
-window.Recorder = Recorder;
 
+window.Recorder = Recorder;
 module.exports = RecorderComponent;

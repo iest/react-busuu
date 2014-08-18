@@ -19,8 +19,8 @@ var RecordingStore = require('../stores/RecordingStore');
 var Recorder = require('./Recorder');
 var AudioPlayer = require('./AudioPlayer');
 
-var ExerciseActions = require('../actions/ExerciseActions');
-var AudioActions = require('../actions/AudioActions');
+var ExerciseActionCreators = require('../actions/ExerciseActionCreators');
+var AudioActionCreators = require('../actions/AudioActionCreators');
 
 var AudioConstants = require('../constants/Constants').Audio;
 
@@ -57,7 +57,7 @@ var characterButton = React.createClass({
 var characterSelectionStage = React.createClass({
 
   _setSelectedCharacter: function(character) {
-    ExerciseActions.setCharacter(this.props.exercise.id, character);
+    ExerciseActionCreators.setCharacter(this.props.exercise.id, character);
   },
 
   render: function() {
@@ -72,7 +72,7 @@ var characterSelectionStage = React.createClass({
           <h3 className="text-muted">{this.props.exercise.intro}</h3>
 
           {exercise.availableCharacters.map(function(character){
-            return(<characterButton key={character.name[LearningLang]} character={character} onSelect={_this._setSelectedCharacter}/>);
+            return(<characterButton key={character.name.value} character={character} onSelect={_this._setSelectedCharacter}/>);
           })}
         </div>
       );
@@ -99,64 +99,23 @@ var panelFooter = React.createClass({
 
 // Stage 2 Part
 var conversationGroup = React.createClass({
-  _waitingAudios: [],
-  _playingAudio: null,
-  _finishedAudios: [],
-  _nextAudio: function() {
-    var _this = this;
-    setTimeout(function() {
-      AudioActions.play(_this._waitingAudios[0]);
-      ExerciseActions.startAutoPlay(_this.props.exercise.id);
-    }, 0);
+  propTypes: {
+
   },
-  _audioChange: function() {
-    var allAudio = AudioStore.getAll();
-    var playingAudio = AudioStore.getPlaying();
-
-    // Our first waiting audio is now playing
-    if (this._waitingAudios[0] &&
-      this._waitingAudios[0] === playingAudio) {
-      this._playingAudio = this._waitingAudios.shift();
-      return;
-    }
-
-    // If our audio has now stopped
-    if (this._playingAudio &&
-      allAudio[this._playingAudio].isPlaying === AudioConstants.AUDIO_STOPPED) {
-      this._finishedAudios.push(this._playing);
-
-      if (this._waitingAudios.length) {
-        this._nextAudio();
-      } else {
-        ExerciseActions.stopAutoPlay(this.props.exercise.id);
-      }
-      return;
-    }
-  },
-  autoPlay: function(tokenArr) {
-    this._waitingAudios = tokenArr;
-    this._nextAudio();
-  },
-
   nextScript: function() {
-    ExerciseActions.nextStep(this.props.exercise.id);
+    ExerciseActionCreators.nextStep(this.props.exercise.id);
   },
-
   componentDidMount: function() {
     var _this = this;
 
-    // Listen out for audio events
-    AudioStore.addChangeListener(this._audioChange);
+    var tokens = [
+        this.props.script.question[LearningLang].audio,
+        this.props.script.answer[LearningLang].audio
+        ];
 
     setTimeout(function() {
-      _this.autoPlay([
-        _this.props.script.question[LearningLang].audio,
-        _this.props.script.answer[LearningLang].audio,
-        ]);
-    }, 500);
-  },
-  componentWillUnmount: function() {
-    AudioStore.removeChangeListener(this._audioChange);
+      AudioActionCreators.startSequence(tokens);
+    }, 800);
   },
   render: function () {
     var _this = this;
@@ -169,7 +128,10 @@ var conversationGroup = React.createClass({
         <h3 className="bold mbl">Listen and then record yourself speaking</h3>
         <div className="exercise--golf__section--left">
           <div className="exercise--golf__panel__avatar">
-            <img className="img-profile-m img-round img-border" src={question.character.image}/>
+            <img className={cx({
+              "img-profile-m img-round img-border": true,
+              "active": exercise.chosenCharacter.name === question.character.name
+            })} src={question.character.image}/>
           </div>
           <div className={cx({
             "panel panel-tick-left panel-border--bs-grey panel-bg--white text-left text-medium": true,
@@ -181,13 +143,16 @@ var conversationGroup = React.createClass({
               </div>
               <p>{question[LearningLang].value}</p>
             </div>
-            <panelFooter isActive={exercise.chosenCharacter.name === question.character.name && !exercise.isAutoPlaying}/>
+            <panelFooter id="question" isActive={exercise.chosenCharacter.name === question.character.name && !exercise.isAutoPlaying}/>
           </div>
         </div>
 
         <div className="exercise--golf__section--right">
           <div className="exercise--golf__panel__avatar">
-            <img className="img-profile-m img-round img-border" src={answer.character.image}/>
+            <img className={cx({
+              "img-profile-m img-round img-border": true,
+              "active": exercise.chosenCharacter.name === answer.character.name
+            })} src={answer.character.image}/>
           </div>
           <div className={cx({
             "panel panel-tick-right panel-border--bs-grey panel-bg--white text-left text-medium": true,
@@ -199,11 +164,11 @@ var conversationGroup = React.createClass({
               </div>
               <p>{answer[LearningLang].value}</p>
             </div>
-            <panelFooter isActive={exercise.chosenCharacter.name === answer.character.name && !exercise.isAutoPlaying}/>
+            <panelFooter id="answer" isActive={exercise.chosenCharacter.name === answer.character.name && !exercise.isAutoPlaying}/>
           </div>
         </div>
         <div className="exercise__actions">
-          <button className="btn btn--primary" onClick={this.nextScript}>Continue</button>
+          <button className="btn btn--primary" disabled={!this.props.script.isComplete} onClick={this.nextScript}>Continue</button>
         </div>
       </div>
     );
@@ -212,12 +177,8 @@ var conversationGroup = React.createClass({
 
 // Stage 2
 var conversationStage = React.createClass({
-  getInitialState: function () {
-    return {
-      hasRecorded: false,
-      isRecording: false,
-      currentPlayingAudio: null
-    };
+  propTypes: {
+    exercise: ReactPropTypes.object.isRequired
   },
   render: function() {
     if (this.props.isActive) {
@@ -226,7 +187,23 @@ var conversationStage = React.createClass({
       var activeScriptIndex = this.props.exercise.activeScript;
       var activeScript = this.props.exercise.script[activeScriptIndex];
 
-      return(<conversationGroup script={activeScript} exercise={exercise} />);
+      var groups = this.props.exercise.script.map(function(script) {
+
+        var isActive = (script === activeScript);
+        if (isActive) {
+          return (
+            <conversationGroup key={script.question[LearningLang].value} script={script} exercise={exercise} />
+          );
+        } else {
+          return null;
+        }
+      });
+
+      return (
+        <div>
+          {groups}
+        </div>
+      );
     } else {
       return null;
     }
@@ -234,9 +211,75 @@ var conversationStage = React.createClass({
 });
 
 var previewStage = React.createClass({
+
+  /**
+   * What this needs:
+   *
+   * - Conversation-type view, containing each question and answer from
+   * each script
+   * - 
+   */
+
   render: function() {
+    var _this = this;
+
     if (this.props.isActive) {
-      return(<h1>previewStage</h1>);
+
+      var convo = this.props.exercise.script.map(function(script) {
+        var exercise = _this.props.exercise;
+        var question = script.question;
+        var answer = script.answer;
+        return (
+          <div>
+            <div className="exercise--golf__section--left">
+              <div className="exercise--golf__panel__avatar">
+                <img className={cx({
+                  "img-profile-m img-round img-border": true,
+                  "active": exercise.chosenCharacter.name === question.character.name
+                })} src={question.character.image}/>
+              </div>
+              <div className={cx({
+                "panel panel-tick-left panel-border--bs-grey panel-bg--white text-left text-medium": true,
+                "active": exercise.currentPlayingAudio === question[LearningLang].audio
+              })}>
+                <div className="panel__inner exercise--golf__panel__inside">
+                  <div>
+                    <AudioPlayer src={question[LearningLang].audio}/>
+                  </div>
+                  <p>{question[LearningLang].value}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="exercise--golf__section--right">
+              <div className="exercise--golf__panel__avatar">
+                <img className={cx({
+                  "img-profile-m img-round img-border": true,
+                  "active": exercise.chosenCharacter.name === answer.character.name
+                })} src={answer.character.image}/>
+              </div>
+              <div className={cx({
+                "panel panel-tick-right panel-border--bs-grey panel-bg--white text-left text-medium": true,
+                "active": exercise.currentPlayingAudio === answer[LearningLang].audio
+              })}>
+                <div className="panel__inner exercise--golf__panel__inside">
+                  <div>
+                    <AudioPlayer src={answer[LearningLang].audio}/>
+                  </div>
+                  <p>{answer[LearningLang].value}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      });
+
+    return (
+      <div>
+        {convo}  
+      </div>
+    );
+      
     } else {
       return null;
     }
@@ -291,10 +334,10 @@ var RecordingExercise = React.createClass({
   },
 
   _pass: function() {
-   ExerciseActions.pass(this.props.exerciseID);
+   ExerciseActionCreators.pass(this.props.exerciseID);
   },
   _fail: function() {
-    ExerciseActions.fail(this.props.exerciseID);
+    ExerciseActionCreators.fail(this.props.exerciseID);
   },
 
   getInitialState: function() {
@@ -304,6 +347,7 @@ var RecordingExercise = React.createClass({
     ExerciseStore.addChangeListener(this._onChange);
     AudioStore.addChangeListener(this._onChange);
     RecordingStore.addChangeListener(this._onChange);
+    ExerciseActionCreators.loaded(this.props.exerciseID);
   },
 
   componentWillUnmount: function() {
