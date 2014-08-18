@@ -53,6 +53,7 @@ function nextStep(id) {
     exercise.activeScript++;
   } else {
     // We're at the last one, do something else
+    exercise.nextStage();
   }
 }
 

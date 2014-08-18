@@ -211,9 +211,75 @@ var conversationStage = React.createClass({
 });
 
 var previewStage = React.createClass({
+
+  /**
+   * What this needs:
+   *
+   * - Conversation-type view, containing each question and answer from
+   * each script
+   * - 
+   */
+
   render: function() {
+    var _this = this;
+
     if (this.props.isActive) {
-      return(<h1>previewStage</h1>);
+
+      var convo = this.props.exercise.script.map(function(script) {
+        var exercise = _this.props.exercise;
+        var question = script.question;
+        var answer = script.answer;
+        return (
+          <div>
+            <div className="exercise--golf__section--left">
+              <div className="exercise--golf__panel__avatar">
+                <img className={cx({
+                  "img-profile-m img-round img-border": true,
+                  "active": exercise.chosenCharacter.name === question.character.name
+                })} src={question.character.image}/>
+              </div>
+              <div className={cx({
+                "panel panel-tick-left panel-border--bs-grey panel-bg--white text-left text-medium": true,
+                "active": exercise.currentPlayingAudio === question[LearningLang].audio
+              })}>
+                <div className="panel__inner exercise--golf__panel__inside">
+                  <div>
+                    <AudioPlayer src={question[LearningLang].audio}/>
+                  </div>
+                  <p>{question[LearningLang].value}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="exercise--golf__section--right">
+              <div className="exercise--golf__panel__avatar">
+                <img className={cx({
+                  "img-profile-m img-round img-border": true,
+                  "active": exercise.chosenCharacter.name === answer.character.name
+                })} src={answer.character.image}/>
+              </div>
+              <div className={cx({
+                "panel panel-tick-right panel-border--bs-grey panel-bg--white text-left text-medium": true,
+                "active": exercise.currentPlayingAudio === answer[LearningLang].audio
+              })}>
+                <div className="panel__inner exercise--golf__panel__inside">
+                  <div>
+                    <AudioPlayer src={answer[LearningLang].audio}/>
+                  </div>
+                  <p>{answer[LearningLang].value}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      });
+
+    return (
+      <div>
+        {convo}  
+      </div>
+    );
+      
     } else {
       return null;
     }
